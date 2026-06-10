@@ -141,9 +141,13 @@ def select_properties(plttype):
             plt.pause(.1)
         return colorcolor
     if plttype == 4:
+        global physical
+        global physeq
+        physical = ['LRAT']
+        physeq = r"Luminosity Ratio [$\log_{10}(L/L_{\mathrm{ssm}})$]"
         # GWC - Changed figsize, fontsize, axes to make room for more colors. 5/12/26
         # colorsel = plt.figure(figsize= (5,4))
-        colorsel = plt.figure(figsize= (10,10))
+        colorsel = plt.figure(figsize= (6,5))
         # colorsel.suptitle('Select Color', fontsize = 15)
         colorsel.suptitle('Select Physical Property For Histogram', fontsize = 20, y = .96)
         # axes = plt.axes([.2,.3,.7,.5])
@@ -153,10 +157,10 @@ def select_properties(plttype):
         label_props={'fontsize':[15]*len(physical_options)},
                                         # radio_props={'s':[64]*len(coloroptions)})
         radio_hist= RadioButtons(axes, physical_options, label_props={'fontsize':[10]*len(physical_options)},
-                                        radio_props={'s':[64]*len(coloroptions)})
+                                        radio_props={'s':[64]*len(physical_options)})
         radio_hist.on_clicked(histphysicalfunc)
 
-        axes2 = plt.axes([.2,.15,.7,.1])
+        axes2 = plt.axes([.2,.15,.6,.1])
         contbutton = Button(axes2, 'Continue')
         contbutton.on_clicked(close)
         plt.show()
@@ -189,9 +193,16 @@ def histcolorfunc(label):
     return color
 def histphysicalfunc(label):
     global physical
-    physicaldict = ["Luminosity Ratio", "Bolometric Temperature","Suface Density","Greybody Temperature"]
+    global physeq
+    physicaldict = {"Luminosity Ratio": ['LRAT'], "Bolometric Temperature": ['TBOL'],
+                    "Surface Density": ['SIGMA'],"Greybody Temperature": ['TEMP'],}
+    physicalform = {"Luminosity Ratio": r"Luminosity Ratio [$\log_{10}(L/L_{\mathrm{ssm}})$]",
+                    "Bolometric Temperature": r"Bolometric Temperature [$T_{\mathrm{bol}}/\mathrm{K}$]",
+                    "Surface Density": r"Surface Density [$\log_{10}(\sum/\mathrm{g\,cm^{-3}})$]",
+                    "Greybody Temperature": r"Greybody Temperature [$T_{\mathrm{g}}/\mathrm{K}$]"}
     physical = physicaldict[label]
-    return physical
+    physeq = physicalform[label]
+    return physical, physeq
 def colorfuncx(label):
     global colorcolor
     colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
@@ -329,12 +340,39 @@ def excludeoptions():
     catexc1 = [x for x in xmatexlist if clickedcats1[xmatexlist.index(x)]==True]
     return cutoff, [catexc0,catexc1]
 
+def excludeoptionsphys():
+    excsel = plt.figure(figsize=(4,6))
+    excsel.suptitle('Set Exclusion Parameters')
+    startbox_axes = plt.axes([.2,.8,.4,.1])
+    global cutoff
+    cutoffentry = TextBox(startbox_axes, 'Set Cutoff', str(cutoff))
+    cutoffentry.on_submit(entrynumber)
+    axes0 = plt.axes([.2,.2,.6,.5])
+    axes0.set_title("By Flag", fontsize = 15)
+    global clicked0
+    clicked0 = [False] * len(flagexlist)
+    exsort0= CheckButtons(axes0, flagexlist, clicked0, label_props={'fontsize':[10]})
+    exsort0.on_clicked(excategories2)
+    axes2 = plt.axes([.25,.075,.5,.1])
+    contbutton = Button(axes2, 'Continue')
+    contbutton.on_clicked(close)
+    global done
+    done = False
+
+    while not done:
+        plt.pause(.1)
+    plt.show()
+    return cutoff, clicked0
+
 def excategories0(label):
     global clicked0
     clicked0[0]= not clicked0[0]
 def excategories1(label):
     global clicked1
     clicked1[0]=not clicked1[0]
+def excategories2(label):
+    index = flagexlist.index(label)
+    clicked0[index]=not clicked0[index]
         
 # For Plotting
 def get_binlen(n):
@@ -400,42 +438,60 @@ coloroptions = ['1100/870','1100/500','1100/350','1100/250','1100/160','1100/70'
                 '250/24','250/12','250/8',
                 '160/70','160/24','160/12','160/8','70/24','70/12','70/8','24/12','24/8','12/8']
 
-physical_options = ["Luminosity Ratio", "Bolometric Temperature","Suface Density","Greybody Temperature"]
+physical_options = ["Luminosity Ratio", "Bolometric Temperature","Surface Density","Greybody Temperature"]
 # GWC - This assignment needs to point to the first entry in colordict. 5/12/26
 # color = ['F70','F24']
 color = ['F1100','F870']
 color = select_properties(plttype)
-
-#Step 3: Select whether data will be sorted by flag or crossmatch, then choose
-#        what categories to plot
+    #Step 3: Select whether data will be sorted by flag or crossmatch, then choose
+    #        what categories to plot
 sorttypes = ['CrossMatch', 'Flag']
 sortlist = [['All Sources', 'RMS', 'WISE C,G,K', 'WISE Q', 'CORNISH', 'No Association'],
-            ['All Sources', 'Multiple Sources', 'Very Circular', 
-             'Not Multiple Sources', 'Not Very Circular', 'Neither']]
+                ['All Sources', 'Multiple Sources', 'Very Circular', 
+                'Not Multiple Sources', 'Not Very Circular', 'Neither']]
 sort = sortoptions()
+if plttype != 4 :
+    #Step 4: Select parameters used to exclude data
+    extype0 = ['By Flag']
+    extype1 = ['By Crossmatch']
+    flagexlist = ['No Obvious Source', 'Poor Confidence', 'Multiple Sources', 
+                'Very Circular']
+    xmatexlist = ['RMS', 'WISE Q', 'WISE C,G,K', 'CORNISH', 'No Association']
+    cutoff = .5
 
-#Step 4: Select parameters used to exclude data
-extype0 = ['By Flag']
-extype1 = ['By Crossmatch']
-flagexlist = ['No Obvious Source', 'Poor Confidence', 'Multiple Sources', 
-               'Very Circular']
-xmatexlist = ['RMS', 'WISE Q', 'WISE C,G,K', 'CORNISH', 'No Association']
-cutoff = .5
+    exclusions = excludeoptions()
 
-exclusions = excludeoptions()
+    ########################
+    # Create Selected Plot #
+    ########################
+    colordict = {'All Sources': 'green', 'RMS': 'red', 'WISE C,G,K':'orange', 'WISE Q': 'blue',
+                'CORNISH':'purple', 'No Association':'gray', 'Multiple Sources': 'red', 'Very Circular':'orange', 
+                'Not Multiple Sources': 'blue','Not Very Circular':'purple', 'Neither':'gray'}
+    ccolordict = {'All Sources': 'Greens', 'RMS': 'Reds', 'WISE C,G,K':'Oranges', 'WISE Q': 'Blues',
+                'CORNISH':'Purples', 'No Association':'Grays', 'Multiple Sources': 'Reds', 'Very Circular':'Oranges', 
+                'Not Multiple Sources': 'Blues','Not Very Circular':'Purples', 'Neither':'Grays'}
+if plttype == 4 :
+    #Step 4: Select parameters used to exclude data
+    extype0 = ['By Flag']
+    flagexlist = ['No Obvious Source', 'Poor Confidence', 'Multiple Sources', 
+                'Very Circular']
+    cutoff = 3.5
 
-########################
-# Create Selected Plot #
-########################
-colordict = {'All Sources': 'green', 'RMS': 'red', 'WISE C,G,K':'orange', 'WISE Q': 'blue',
-             'CORNISH':'purple', 'No Association':'gray', 'Multiple Sources': 'red', 'Very Circular':'orange', 
-             'Not Multiple Sources': 'blue','Not Very Circular':'purple', 'Neither':'gray'}
-ccolordict = {'All Sources': 'Greens', 'RMS': 'Reds', 'WISE C,G,K':'Oranges', 'WISE Q': 'Blues',
-             'CORNISH':'Purples', 'No Association':'Grays', 'Multiple Sources': 'Reds', 'Very Circular':'Oranges', 
-             'Not Multiple Sources': 'Blues','Not Very Circular':'Purples', 'Neither':'Grays'}
+    exclusions = excludeoptionsphys()
+
+    ########################
+    # Create Selected Plot #
+    ########################
+    colordict = {'All Sources': 'green', 'RMS': 'red', 'WISE C,G,K':'orange', 'WISE Q': 'blue',
+                'CORNISH':'purple', 'No Association':'gray', 'Multiple Sources': 'red', 'Very Circular':'orange', 
+                'Not Multiple Sources': 'blue','Not Very Circular':'purple', 'Neither':'gray'}
+    ccolordict = {'All Sources': 'Greens', 'RMS': 'Reds', 'WISE C,G,K':'Oranges', 'WISE Q': 'Blues',
+                'CORNISH':'Purples', 'No Association':'Grays', 'Multiple Sources': 'Reds', 'Very Circular':'Oranges', 
+                'Not Multiple Sources': 'Blues','Not Very Circular':'Purples', 'Neither':'Grays'}
 if plttype == 1:
     #Put together a relevant dataframe
     sortheaders = [x.replace('Not ','') for x in sort[1] if x != 'All Sources' and x!= 'Neither']
+    print(sortheaders)
     if 'Neither' in sort[1]:
         sortheaders.append('Multiple Sources')
         sortheaders.append('Very Circular')
@@ -535,12 +591,112 @@ if plttype == 1:
     plt.show()
 
 
+if plttype == 4:
+    data_hcsc = pd.read_csv("MRT-hcsc.txt", sep=r"\s+", skiprows=27, usecols=physical + ["ID"] + ["e_" + physical[0]])
+    sortheaders = [x.replace('Not ','') for x in sort[1] if x != 'All Sources' and x!= 'Neither']
+    xmatdata = pd.read_csv("PlotMaster-10fluxes-GWC.csv", usecols=["YB"]+sortheaders)
+    merged = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
+    print("Before exclusions:", len(merged))
+    print("Cutoff:", exclusions[0])
 
-
-
-
-
-
+    unc = np.sqrt(merged["e_"+physical[0]])
+    print("Min uncertainty:", np.nanmin(unc))
+    print("Max uncertainty:", np.nanmax(unc))
+    print("Median uncertainty:", np.nanmedian(unc))
+    excludeidx= []
+    for i in range(len(merged)):
+        for j in range(len(flagexlist)):
+            if exclusions[1][j]:
+                flag = flagexlist[j]
+                if flag in merged.columns and merged[flag].iloc[i] == 1:
+                    excludeidx.append(i)
+        uncertainty = np.sqrt(merged["e_"+physical[0]].iloc[i])
+        if uncertainty > exclusions[0] or uncertainty < 0:
+            excludeidx.append(i)
+    excludeidx = list(set(excludeidx))
+    merged = merged.drop(index=excludeidx).reset_index(drop=True)
+    if 'Neither' in sort[1]:
+        sortheaders.append('Multiple Sources')
+        sortheaders.append('Very Circular')
+    #Put together a relevant dataframe
+    physical_data = merged[physical[0]]
+    if physical[0] == 'LRAT' or physical[0] == 'SIGMA':
+        log_physical_data = np.log10(physical_data)
+        log_physical_data_tot = np.log10(physical_data).tolist()
+    else:
+        log_physical_data = physical_data
+        log_physical_data_tot = physical_data.tolist()
+    flag_data = xmatdata.loc[(data_hcsc["ID"] == xmatdata["YB"])]
+    physun = merged['e_' + physical[0]]
+    unentry_list = np.sqrt(physun)
+    phys_categorized = []
+    phys_ercategorized =[]
+    for category in sort[1]:
+        cat = []
+        ercat = []
+        for i in range(len(merged)):
+            value = log_physical_data.iloc[i]
+            unentry = unentry_list.iloc[i]
+            if np.isnan(value) == False and np.isnan(unentry) == False:
+                if np.isnan(value):
+                    continue
+                if category == "All Sources":
+                    cat.append(value)
+                    ercat.append(unentry)
+                elif category=='Neither':
+                    if merged['Multiple Sources'].iloc[i] == 0 and merged['Very Circular'].iloc[i]==0:
+                        cat.append(value)
+                        ercat.append(unentry)
+                elif 'Not ' in category:
+                    if merged[category.replace('Not ','')].iloc[i]==0:
+                        cat.append(value)
+                        ercat.append(unentry)
+                else:
+                    if merged[category].iloc[i]==1:
+                        cat.append(value)
+                        ercat.append(unentry)
+        phys_categorized.append(cat)
+        phys_ercategorized.append(ercat)
+    
+    dim = get_dimensions(len(phys_categorized))
+    fig= plt.figure(figsize=(8*dim[0],8*dim[1]))
+    fig.subplots_adjust(top=0.81)
+    fig.canvas.header_visible= False
+    fig.suptitle(f'{physeq} Histograms\nCutoff:{str(exclusions[0])}', fontsize = 25)
+    fig.patch.set_facecolor("White")
+    fig.text(.5, .02,f'{physeq}', fontsize=28, ha='center')
+    fig.text(.02, 0.5, 'Number', fontsize=28, rotation='vertical', va='center')
+    maxval = max(log_physical_data_tot)
+    minval = min(log_physical_data_tot)
+    datarng = (minval, maxval)
+    datarng1 = get_range(phys_categorized)
+    for i in range(len(sort[1])):
+        title = sort[1][i]
+        data = phys_categorized[i]
+        undata = phys_ercategorized[i]
+        uncertainty = np.mean(undata)
+        minifig= plt.subplot(dim[1],dim[0],i+1)
+        minifig1= plt.subplot(dim[1],dim[0],i+1)
+        plt.title(title, fontsize= 28)
+        n = len(data)
+        avephys= round(statistics.mean(data),2)
+        stdevphys= round(np.std(data),3)
+        binlen = get_binlen(n)
+        plt.hist(log_physical_data, bins= binlen, range=(datarng))
+        cnts, bns, ptchs = plt.hist(data, bins= binlen, range=(datarng1))
+        minifig.set_xlim(datarng)
+        minifig.tick_params(labelsize=20)
+        y = max(cnts)
+        #Average lines for F12/F8 colors, will only plot if those colors are selected
+        #Other formatting things
+        FAVEline= plt.axvline(x=avephys, color='black', label= title + ' Average')
+        minifig.text(.02,.93,'N=' + str(n), fontsize=28, transform = minifig.transAxes)
+        minifig.text(.02,.87,r'$\bar{x} =$' + str(round(avephys,2)), fontsize=28, transform = minifig.transAxes)
+        minifig.text(.02,.81,r'$s =$' + str(round(stdevphys,3)), fontsize=28, transform = minifig.transAxes)
+        minifig.errorbar(datarng1[0]+ uncertainty,.65*y,xerr=uncertainty, yerr=None, capsize=10, color='k')
+        minifig.vlines(datarng1[0]+uncertainty, .61*y, .69*y, colors='k')
+    plt.ioff()
+    plt.show()
 
 
 elif plttype == 2:
