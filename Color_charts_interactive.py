@@ -504,8 +504,8 @@ def excludeoptionsphys():
 def physcolor():
     global physcolorcolor
     global physlabel
-    physcolorcolor = ["TEMP"]
-    physlabel = "Greybody Temperature"
+    physcolorcolor = ["LRAT"]
+    physlabel = "Luminosity Ratio"
     excsel = plt.figure(figsize=(4,6))
     excsel.suptitle("Choose Physical Property To Include")
     #startbox_axes = plt.axes([.2,.8,.6,.1])
