@@ -244,7 +244,7 @@ def actdistance():
 
     startbox_axes15 = plt.axes([.1,.15,.4,.1])
     cutoffentry15 = TextBox(startbox_axes15, 'Distance Min')
-    cutoffentry15.on_submit(entrynumber14)
+    cutoffentry15.on_submit(entrynumber15)
 
     axes9 = plt.axes([.25,.03,.5,.1])
     contbutton4 = Button(axes9, 'Continue')
@@ -1042,6 +1042,7 @@ elif plttype == 2:
                     (merged["GLON"] < lmax) &
                     (merged["GLON"] > lmin))
         merged = merged.loc[criteria].reset_index(drop=True)
+        print(len(merged))
     if physcolorcolor[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
         log_physcolorcolor = np.log10(merged[physcolorcolor])
     else:
