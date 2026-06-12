@@ -9,6 +9,8 @@ NOTE: The current PlotMaster is dated 5/18/26. Maya pointed out a problem with t
 
 Vining additions:
 
+Best program is now: Color_charts_interactive.py
+
 Code now needs data tables to run:
 MRT-dist.txt
 MRT-hcsc.txt
