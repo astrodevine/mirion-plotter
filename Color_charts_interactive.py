@@ -24,6 +24,10 @@ save_name= os.path.join(path, 'FigureX.png')
 # Define Functions #
 ####################
 #Multiply used functions
+def restart(event):
+    import os
+    import sys
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 def close(event):
     global done
     done = True
@@ -52,6 +56,12 @@ def make_colorcolor(event):
     global plttype
     plt.close()
     plttype = 2
+    return plttype
+
+def includedistacne(event):
+    global plttype
+    plt.close()
+    plttype = 5
     return plttype
 
 def select_color_physical():
@@ -143,8 +153,10 @@ def select_properties(plttype):
     if plttype == 4:
         global physical
         global physeq
+        global phys_title
         physical = ['LRAT']
         physeq = r"Luminosity Ratio [$\log_{10}(L/L_{\mathrm{ssm}})$]"
+        phys_title = "Luminosity Ratio"
         # GWC - Changed figsize, fontsize, axes to make room for more colors. 5/12/26
         # colorsel = plt.figure(figsize= (5,4))
         colorsel = plt.figure(figsize= (6,5))
@@ -171,6 +183,80 @@ def select_properties(plttype):
             plt.pause(.1)
         return physical
 
+def distanceoption():
+    global answer
+    answer = True
+    discel = plt.figure(figsize=(4,6))
+    discel.suptitle("Filter by Distance?")
+    #startbox_axes = plt.axes([.2,.8,.4,.1])
+    axes7 = plt.axes([.15,.3,.7,.5])
+    exsort7= RadioButtons(axes7, ["Yes","No"], label_props={'fontsize':[10]*len(disoption)}, radio_props={'s':[64]*len(disoption)})
+    exsort7.on_clicked(yesorno)
+    axes8 = plt.axes([.25,.075,.5,.1])
+    contbutton = Button(axes8, 'Continue')
+    contbutton.on_clicked(close)
+    global done
+    done = False
+
+    while not done:
+        plt.pause(.1)
+    plt.show()
+    return
+def yesorno(label):
+    global answer
+    answerlst = {"Yes": True, 
+                    "No": False,}
+    answer = answerlst[label]   
+def actdistance():
+    global lmax
+    global lmin
+    global bmax
+    global bmin
+    global dismax
+    global dismin
+    lmax = 360
+    lmin = 0
+    bmax = 2
+    bmin = -2
+    dismax = 200
+    dismin = 0
+    excsel10 = plt.figure(figsize=(10,6))
+    excsel10.suptitle('Set Exclusion Parameters')
+    startbox_axes10 = plt.axes([.1,.75,.4,.1])
+    cutoffentry10 = TextBox(startbox_axes10, 'l Max')
+    cutoffentry10.on_submit(entrynumber10)
+
+    startbox_axes11 = plt.axes([.1,.63,.4,.1])
+    cutoffentry11 = TextBox(startbox_axes11, 'l Min')
+    cutoffentry11.on_submit(entrynumber11)
+
+    startbox_axes12 = plt.axes([.1,.51,.4,.1])
+    cutoffentry12 = TextBox(startbox_axes12, 'b Max')
+    cutoffentry12.on_submit(entrynumber12)
+
+    startbox_axes13 = plt.axes([.1,.39,.4,.1])
+    cutoffentry13 = TextBox(startbox_axes13, 'b Min')
+    cutoffentry13.on_submit(entrynumber13)
+
+    startbox_axes14 = plt.axes([.1,.27,.4,.1])
+    cutoffentry14 = TextBox(startbox_axes14, 'Distance Max')
+    cutoffentry14.on_submit(entrynumber14)
+
+    startbox_axes15 = plt.axes([.1,.15,.4,.1])
+    cutoffentry15 = TextBox(startbox_axes15, 'Distance Min')
+    cutoffentry15.on_submit(entrynumber14)
+
+    axes9 = plt.axes([.25,.03,.5,.1])
+    contbutton4 = Button(axes9, 'Continue')
+    contbutton4.on_clicked(close)
+    global done
+    done = False
+
+    while not done:
+        plt.pause(.1)
+    plt.show()
+    return
+
 # GWC adds 160 um on 5/8/26. Added all longer-wavelength fluxes on 5/12/26.
 def histcolorfunc(label):
     global color
@@ -194,14 +280,26 @@ def histcolorfunc(label):
 def histphysicalfunc(label):
     global physical
     global physeq
-    physicaldict = {"Luminosity Ratio": ['LRAT'], "Bolometric Temperature": ['TBOL'],
-                    "Surface Density": ['SIGMA'],"Greybody Temperature": ['TEMP'],}
+    global phys_title
+    physicaldict = {"Luminosity Ratio": ['LRAT'], 
+                    "Bolometric Temperature": ['TBOL'],
+                    "Surface Density": ['SIGMA'],
+                    "Greybody Temperature": ['TEMP'],
+                    "Mass": ["MASS"],
+                    "Bolometric Luminosity": ["BLUM"],
+                    "Diameter": ["DIAM"],
+                    "Bolometric Luminosity/Mass": ["LMRAT"]}
     physicalform = {"Luminosity Ratio": r"Luminosity Ratio [$\log_{10}(L/L_{\mathrm{ssm}})$]",
                     "Bolometric Temperature": r"Bolometric Temperature [$T_{\mathrm{bol}}/\mathrm{K}$]",
                     "Surface Density": r"Surface Density [$\log_{10}(\sum/\mathrm{g\,cm^{-3}})$]",
-                    "Greybody Temperature": r"Greybody Temperature [$T_{\mathrm{g}}/\mathrm{K}$]"}
+                    "Greybody Temperature": r"Greybody Temperature [$T_{\mathrm{g}}/\mathrm{K}$]",
+                    "Mass": r"Mass [$\log_{10}(M/M_\odot)$]",
+                    "Bolometric Luminosity": r"Bolometric Luminosity [$\log_{10}(L/L_\odot)$]",
+                    "Diameter": r"Diameter [$\log_{10}(D/\mathrm{pc})$]",
+                    "Bolometric Luminosity/Mass": r"Bolometric Luminosity/Mass [$\log_{10}(L/L_\odot \,/\, M/M_\odot)$]"}
     physical = physicaldict[label]
     physeq = physicalform[label]
+    phys_title = label
     return physical, physeq
 def colorfuncx(label):
     global colorcolor
@@ -223,7 +321,6 @@ def colorfuncx(label):
     color = colordict[label]
     colorcolor[0]=color
     return colorcolor
-
 def colorfuncy(label):
     global colorcolor
     colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
@@ -244,6 +341,23 @@ def colorfuncy(label):
     color = colordict[label]
     colorcolor[1]=color
     return colorcolor
+def physicalswitch(label):
+    global physcolorcolor
+    global physlabel
+    physicaldict = {"Luminosity Ratio": ['LRAT'], 
+                    "Bolometric Temperature": ['TBOL'],
+                    "Surface Density": ['SIGMA'],
+                    "Greybody Temperature": ['TEMP'],
+                    "Mass": ["MASS"],
+                    "Bolometric Luminosity": ["BLUM"],
+                    "Diameter": ["DIAM"],
+                    "Bolometric Luminosity/Mass": ["LMRAT"]}
+    physicalform = {"Temperature": r"Temperature [$T_{\mathrm{bol}}/\mathrm{K}$]",
+                    "Mass": r"Mass [$\log_{10}(M/M_\odot)$]"}
+    physcolorcolor = physicaldict[label]
+    physlabel = label
+    #phys_title = label
+    return physcolorcolor, physlabel
 #Functions For Step 3
 def sortoptions():
     sortsel = plt.figure(figsize=(5,4))
@@ -284,13 +398,36 @@ def entrynumber(entry):
     global cutoff
     cutoff = float(entry)
     return cutoff
-
+def entrynumber10(entry):
+    global lmax
+    lmax = float(entry)
+    return lmax
+def entrynumber11(entry):
+    global lmin
+    lmin = float(entry)
+    return lmin
+def entrynumber12(entry):
+    global bmax
+    bmax = float(entry)
+    return bmax
+def entrynumber13(entry):
+    global bmin
+    bmin = float(entry)
+    return bmin
+def entrynumber14(entry):
+    global dismax
+    dismax = float(entry)
+    return dismax
+def entrynumber15(entry):
+    global dismin
+    dismin = float(entry)
+    return dismin
 def excludeoptions():
     excsel = plt.figure(figsize=(10,6))
     excsel.suptitle('Set Exclusion Parameters')
     startbox_axes = plt.axes([.1,.75,.4,.1])
     global cutoff
-    cutoffentry = TextBox(startbox_axes, 'Set Cutoff', str(cutoff))
+    cutoffentry = TextBox(startbox_axes, 'Set Cutoff')
     cutoffentry.on_submit(entrynumber)
     axes0 = plt.axes([.1,.6,.4,.1])
     global clicked0
@@ -345,7 +482,7 @@ def excludeoptionsphys():
     excsel.suptitle('Set Exclusion Parameters')
     startbox_axes = plt.axes([.2,.8,.4,.1])
     global cutoff
-    cutoffentry = TextBox(startbox_axes, 'Set Cutoff', str(cutoff))
+    cutoffentry = TextBox(startbox_axes, 'Set Cutoff')
     cutoffentry.on_submit(entrynumber)
     axes0 = plt.axes([.2,.2,.6,.5])
     axes0.set_title("By Flag", fontsize = 15)
@@ -364,6 +501,30 @@ def excludeoptionsphys():
     plt.show()
     return cutoff, clicked0
 
+def physcolor():
+    global physcolorcolor
+    global physlabel
+    physcolorcolor = ["TEMP"]
+    physlabel = "Greybody Temperature"
+    excsel = plt.figure(figsize=(4,6))
+    excsel.suptitle("Choose Physical Property To Include")
+    #startbox_axes = plt.axes([.2,.8,.4,.1])
+    axes0 = plt.axes([.15,.3,.7,.5])
+    global clicked0
+    clicked0 = [False] * len(physoption)
+    exsort0= RadioButtons(axes0, physoption, label_props={'fontsize':[10]*len(physoption)}, radio_props={'s':[64]*len(physoption)})
+    exsort0.on_clicked(physicalswitch)
+    axes2 = plt.axes([.25,.075,.5,.1])
+    contbutton = Button(axes2, 'Continue')
+    contbutton.on_clicked(close)
+    global done
+    done = False
+
+    while not done:
+        plt.pause(.1)
+    plt.show()
+    return
+
 def excategories0(label):
     global clicked0
     clicked0[0]= not clicked0[0]
@@ -373,6 +534,7 @@ def excategories1(label):
 def excategories2(label):
     index = flagexlist.index(label)
     clicked0[index]=not clicked0[index]
+
         
 # For Plotting
 def get_binlen(n):
@@ -392,12 +554,42 @@ def get_dimensions(n):
 
 def get_range(datacol):
     longest_list = max(datacol, key=len)
+    if len(longest_list) == 0:
+            plt.close(fig)
+            excsel2 = plt.figure(figsize=(3,2))
+            excsel2.suptitle('No Yellow Balls to Plot')
+
+            axes2 = plt.axes([.25,.03,.5,.1])
+            contbutton2 = Button(axes2, 'Try Again')
+            contbutton2.on_clicked(restart)
+
+            global done1
+            done1 = False
+
+            while not done1:
+                plt.pause(.1)
+            plt.show()
     mean = statistics.mean(longest_list)
     dev = np.std(longest_list)
     return [mean-4*dev, mean + 4*dev]
 
 def get_rangecc(datacol):
     longest_list = max(datacol, key=len)
+    if len(longest_list) == 0:
+            plt.close(fig)
+            excsel2 = plt.figure(figsize=(3,2))
+            excsel2.suptitle('No Yellow Balls to Plot')
+
+            axes2 = plt.axes([.25,.03,.5,.1])
+            contbutton2 = Button(axes2, 'Try Again')
+            contbutton2.on_clicked(restart)
+
+            global done1
+            done1 = False
+
+            while not done1:
+                plt.pause(.1)
+            plt.show()
     mean = statistics.mean(longest_list)
     dev = np.std(longest_list)
     return [mean-6*dev, mean + 6*dev, dev]
@@ -426,7 +618,10 @@ while plttype==0:
     plt.pause(0.1)
 
 plt.close()
-
+disoption = ["Yes","No"]
+distanceoption()
+if answer == True:
+    actdistance()
 if plttype == 3:
     select_color_physical()
 
@@ -438,7 +633,14 @@ coloroptions = ['1100/870','1100/500','1100/350','1100/250','1100/160','1100/70'
                 '250/24','250/12','250/8',
                 '160/70','160/24','160/12','160/8','70/24','70/12','70/8','24/12','24/8','12/8']
 
-physical_options = ["Luminosity Ratio", "Bolometric Temperature","Surface Density","Greybody Temperature"]
+physical_options = ["Luminosity Ratio", 
+                    "Bolometric Temperature",
+                    "Surface Density",
+                    "Greybody Temperature",
+                    "Mass",
+                    "Bolometric Luminosity",
+                    "Diameter",
+                    "Bolometric Luminosity/Mass"]
 # GWC - This assignment needs to point to the first entry in colordict. 5/12/26
 # color = ['F70','F24']
 color = ['F1100','F870']
@@ -457,7 +659,7 @@ if plttype != 4 :
     flagexlist = ['No Obvious Source', 'Poor Confidence', 'Multiple Sources', 
                 'Very Circular']
     xmatexlist = ['RMS', 'WISE Q', 'WISE C,G,K', 'CORNISH', 'No Association']
-    cutoff = .5
+    cutoff = 1000
 
     exclusions = excludeoptions()
 
@@ -470,12 +672,22 @@ if plttype != 4 :
     ccolordict = {'All Sources': 'Greens', 'RMS': 'Reds', 'WISE C,G,K':'Oranges', 'WISE Q': 'Blues',
                 'CORNISH':'Purples', 'No Association':'Grays', 'Multiple Sources': 'Reds', 'Very Circular':'Oranges', 
                 'Not Multiple Sources': 'Blues','Not Very Circular':'Purples', 'Neither':'Grays'}
+if plttype == 2 :
+    physoption = ["Luminosity Ratio", 
+                    "Bolometric Temperature",
+                    "Surface Density",
+                    "Greybody Temperature",
+                    "Mass",
+                    "Bolometric Luminosity",
+                    "Diameter",
+                    "Bolometric Luminosity/Mass"]
+    physcolor()
 if plttype == 4 :
     #Step 4: Select parameters used to exclude data
     extype0 = ['By Flag']
     flagexlist = ['No Obvious Source', 'Poor Confidence', 'Multiple Sources', 
                 'Very Circular']
-    cutoff = 3.5
+    cutoff = 1000
 
     exclusions = excludeoptionsphys()
 
@@ -507,28 +719,47 @@ if plttype == 1:
                              'Poor Confidence ' + color[1].replace('F','')]
     xmatdata = pd.read_csv(catalog_name, usecols=['YB']+color+['u_'+color[0],'u_'+color[1]]+
                            ['e_'+color[0],'e_'+color[1]]+ sortheaders+exclusionheaders)
+ 
+    distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
+    distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
+    distdata = pd.read_fwf("/Users/wadevining/YellowBall/MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
+
+    cordcolspecs=[(0,4),(5,14),(15,23),(24,31),(32,39),(40,47),(48,55),(56,60),(60,68),(69,77),(78,85),(86,94),(95,102),(103,110),(111,120),(121,130),(131,133),(134,136),(137,139),(140,141),(142,146),(147,148),(149,153),(154,158),(159,160)]
+    cordnames=["ID","GLON","GLAT","MWPR","e_GLON","e_GLAT","e_MWPR","HRATE","F8","e_F8","F12","e_F12","F24","e_F24","F70","e_F70","N8","N12","N24","N70","f_SAT","f_MULTI","f_NOSRC","f_PCONF","f_CEXT"]
+    corddata = pd.read_fwf("/Users/wadevining/YellowBall/MRT-phot.txt",colspecs=cordcolspecs, names=cordnames, sep=r"\s+", skiprows = 39, usecols=["ID"] + ["GLON"] + ["GLAT"])
+
+    merged1 = pd.merge(distdata, xmatdata, left_on="ID", right_on="YB", how="inner")
+    merged = pd.merge(corddata, merged1, left_on="ID", right_on="ID", how="inner")
     # Remove Rows based on exclusion parameters
     # Changing range from 6176 to 3945 for Herschel-matched objects. GWC 5/8/26.
     excludeidx = []
-    for i in range(3945):
+    for i in range(len(merged)):
         for j in range(len(exclusionheaders)):
-            if int(xmatdata[exclusionheaders[j]][i])== 1:
+            if int(merged[exclusionheaders[j]][i])== 1:
                 excludeidx += [i]
-        FEvals = [float(xmatdata['e_'+color[0]][i]), float(xmatdata['e_'+color[1]][i])]
+        FEvals = [float(merged['e_'+color[0]][i]), float(merged['e_'+color[1]][i])]
         if exclusions[0]<max(FEvals) or min(FEvals)<0:
             excludeidx += [i]
     excludeidx = list(set(excludeidx))
     # Sort into lists based on sorting categories
+    if answer == True:
+        criteria = ((merged["DIST"] < dismax) & 
+                    (merged["DIST"] > dismin) &
+                    (merged["GLAT"] < bmax) &
+                    (merged["GLAT"] > bmin) &
+                    (merged["GLON"] < lmax) &
+                    (merged["GLON"] > lmin))
+        merged = merged.loc[criteria].reset_index(drop=True)
     categorized = []
     uncategorized = []
     for j in sort[1]:
         cat = []
         uncat = []
-        for i in range(3945):
-            colornum = float(xmatdata[color[0]][i])
-            colornums = float(xmatdata['u_' + color[0]][i])
-            colorden = float(xmatdata[color[1]][i])
-            colordens = float(xmatdata['u_' + color[1]][i])
+        for i in range(len(merged)):
+            colornum = float(merged[color[0]][i])
+            colornums = float(merged['u_' + color[0]][i])
+            colorden = float(merged[color[1]][i])
+            colordens = float(merged['u_' + color[1]][i])
             entry = np.log10(colornum/colorden)
             unc2 = ((colornums**2)/(colornum*np.log(10))**2)+((colordens**2)/(colorden*np.log(10))**2)
             unentry = np.sqrt(unc2)
@@ -537,15 +768,15 @@ if plttype == 1:
                     cat.append(entry)
                     uncat.append(unentry)
                 elif j=='Neither':
-                    if xmatdata['Multiple Sources'][i] == 0 and xmatdata['Very Circular'][i]==0:
+                    if merged['Multiple Sources'][i] == 0 and merged['Very Circular'][i]==0:
                         cat.append(entry)
                         uncat.append(unentry)
                 elif 'Not ' in j:
-                    if xmatdata[j.replace('Not ','')][i]==0:
+                    if merged[j.replace('Not ','')][i]==0:
                         cat.append(entry)
                         uncat.append(unentry)
                 else:
-                    if xmatdata[j][i]==1:
+                    if merged[j][i]==1:
                         cat.append(entry)
                         uncat.append(unentry)
         categorized.append(cat)
@@ -555,11 +786,15 @@ if plttype == 1:
     colorname = color[0] + '/' + color[1]
     fig= plt.figure(figsize=(10*dim[0],10*dim[1]))
     fig.canvas.header_visible= False
-    fig.suptitle(r'$log_{10}$'+f'({colorname}) Color Histograms', fontsize = 25)
+    if exclusions[0] < 1000:
+        cut = f"Cutoff {str(exclusions[0])}"
+    else:
+        cut = "No Cutoff"
+    fig.suptitle(r'$log_{10}$'+f'({colorname}) Color Histograms\n{cut}', fontsize = 25)
     plt.axis('off')
+    fig.subplots_adjust(left=.2, right=.95, top=.85, bottom=.1)
     plt.text(.5, -.075, r'$log_{10}$'+f'({colorname})', fontsize=28, ha='center')
     plt.text(-.075, 0.5, 'Number', fontsize=28, rotation='vertical', va='center')
-    plt.text(.5,1.075,'Cutoff: '+str(exclusions[0]), fontsize = 20, ha='center')
     datarng = get_range(categorized)
     for i in range(len(sort[1])):
         title=sort[1][i]
@@ -572,7 +807,7 @@ if plttype == 1:
         avecolor= round(statistics.mean(data),2)
         stdevcolor = round(np.std(data),3)
         binlen = get_binlen(n)
-        cnts, bns, ptchs = plt.hist(data, facecolor=colordict[title], bins= binlen, range=(datarng))
+        cnts, bns, ptchs = plt.hist(data, facecolor=colordict[title], bins= binlen, range=(datarng), edgecolor="black")
         minifig.tick_params(labelsize=20)
         y = max(cnts)
         #Average lines for F12/F8 colors, will only plot if those colors are selected
@@ -592,17 +827,28 @@ if plttype == 1:
 
 
 if plttype == 4:
-    data_hcsc = pd.read_csv("MRT-hcsc.txt", sep=r"\s+", skiprows=27, usecols=physical + ["ID"] + ["e_" + physical[0]])
+    hcsccolspecs=[(0,4),(5,9),(10,14),(15,23),(24,35),(36,46),(47,57),(58,64),(65,74),(75,80),(81,85),(86,94),(95,102),(103,109),(110,115),(116,121),(122,129)]
+    hcscnames=["ID","DIAM","e_DIAM","MASS","e_MASS","BLUM","e_BLUM","LMRAT","e_LMRAT","TEMP","e_TEMP","LRAT","e_LRAT","TBOL","e_TBOL","SIGMA","e_SIGMA"]
+    data_hcsc = pd.read_fwf("MRT-hcsc.txt",colspecs=hcsccolspecs,names=hcscnames, sep=r"\s+", skiprows=28, usecols= physical + ["ID"] + ["e_" + physical[0]])
+    
+    distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
+    distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
+    distdata = pd.read_fwf("/Users/wadevining/YellowBall/MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
+
     sortheaders = [x.replace('Not ','') for x in sort[1] if x != 'All Sources' and x!= 'Neither']
     xmatdata = pd.read_csv("PlotMaster-10fluxes-GWC.csv", usecols=["YB"]+sortheaders)
-    merged = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
+
+    merged2 = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
+    merged1 = pd.merge(distdata, merged2, left_on="ID", right_on="ID", how="inner")
+    
+    cordcolspecs=[(0,4),(5,14),(15,23),(24,31),(32,39),(40,47),(48,55),(56,60),(60,68),(69,77),(78,85),(86,94),(95,102),(103,110),(111,120),(121,130),(131,133),(134,136),(137,139),(140,141),(142,146),(147,148),(149,153),(154,158),(159,160)]
+    cordnames=["ID","GLON","GLAT","MWPR","e_GLON","e_GLAT","e_MWPR","HRATE","F8","e_F8","F12","e_F12","F24","e_F24","F70","e_F70","N8","N12","N24","N70","f_SAT","f_MULTI","f_NOSRC","f_PCONF","f_CEXT"]
+    corddata = pd.read_fwf("/Users/wadevining/YellowBall/MRT-phot.txt",colspecs=cordcolspecs, names=cordnames, sep=r"\s+", skiprows = 39, usecols=["ID"] + ["GLON"] + ["GLAT"])
+    
+    merged = pd.merge(corddata, merged1, left_on="ID", right_on="ID", how="inner")
+    merged = merged[merged[physical[0]]>0].reset_index(drop=True)
     print("Before exclusions:", len(merged))
     print("Cutoff:", exclusions[0])
-
-    unc = np.sqrt(merged["e_"+physical[0]])
-    print("Min uncertainty:", np.nanmin(unc))
-    print("Max uncertainty:", np.nanmax(unc))
-    print("Median uncertainty:", np.nanmedian(unc))
     excludeidx= []
     for i in range(len(merged)):
         for j in range(len(flagexlist)):
@@ -615,12 +861,20 @@ if plttype == 4:
             excludeidx.append(i)
     excludeidx = list(set(excludeidx))
     merged = merged.drop(index=excludeidx).reset_index(drop=True)
+    if answer == True:
+        criteria = ((merged["DIST"] < dismax) & 
+                    (merged["DIST"] > dismin) &
+                    (merged["GLAT"] < bmax) &
+                    (merged["GLAT"] > bmin) &
+                    (merged["GLON"] < lmax) &
+                    (merged["GLON"] > lmin))
+        merged = merged.loc[criteria].reset_index(drop=True)
     if 'Neither' in sort[1]:
         sortheaders.append('Multiple Sources')
         sortheaders.append('Very Circular')
     #Put together a relevant dataframe
     physical_data = merged[physical[0]]
-    if physical[0] == 'LRAT' or physical[0] == 'SIGMA':
+    if physical[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
         log_physical_data = np.log10(physical_data)
         log_physical_data_tot = np.log10(physical_data).tolist()
     else:
@@ -662,10 +916,30 @@ if plttype == 4:
     fig= plt.figure(figsize=(8*dim[0],8*dim[1]))
     fig.subplots_adjust(top=0.81)
     fig.canvas.header_visible= False
-    fig.suptitle(f'{physeq} Histograms\nCutoff:{str(exclusions[0])}', fontsize = 25)
+    if exclusions[0] < 1000:
+        cut = f"Cutoff {str(exclusions[0])}"
+    else:
+        cut = "No Cutoff"
+    fig.suptitle(f'{phys_title} Histograms\n{cut}', fontsize = 25)
     fig.patch.set_facecolor("White")
     fig.text(.5, .02,f'{physeq}', fontsize=28, ha='center')
     fig.text(.02, 0.5, 'Number', fontsize=28, rotation='vertical', va='center')
+    if len(log_physical_data_tot) == 0:
+        plt.close(fig)
+        excsel2 = plt.figure(figsize=(3,2))
+        excsel2.suptitle('No Yellow Balls to Plot')
+
+        axes2 = plt.axes([.25,.03,.5,.1])
+        contbutton2 = Button(axes2, 'Try Again')
+        contbutton2.on_clicked(restart)
+
+        global done
+        done = False
+
+        while not done:
+            plt.pause(.1)
+        plt.show()
+
     maxval = max(log_physical_data_tot)
     minval = min(log_physical_data_tot)
     datarng = (minval, maxval)
@@ -682,8 +956,8 @@ if plttype == 4:
         avephys= round(statistics.mean(data),2)
         stdevphys= round(np.std(data),3)
         binlen = get_binlen(n)
-        plt.hist(log_physical_data, bins= binlen, range=(datarng))
-        cnts, bns, ptchs = plt.hist(data, bins= binlen, range=(datarng1))
+        plt.hist(log_physical_data, bins= binlen, range=(datarng), edgecolor="black")
+        cnts, bns, ptchs = plt.hist(data, bins= binlen, range=(datarng), edgecolor="black")
         minifig.set_xlim(datarng)
         minifig.tick_params(labelsize=20)
         y = max(cnts)
@@ -726,42 +1000,76 @@ elif plttype == 2:
                            ['e_'+colorx[0],'e_'+colorx[1]]+ colory+['u_'+colory[0],'u_'+colory[1]]+
                            ['e_'+colory[0],'e_'+colory[1]]+sortheaders+exclusionheaders)
     
+    hcsccolspecs=[(0,4),(5,9),(10,14),(15,23),(24,35),(36,46),(47,57),(58,64),(65,74),(75,80),(81,85),(86,94),(95,102),(103,109),(110,115),(116,121),(122,129)]
+    hcscnames=["ID","DIAM","e_DIAM","MASS","e_MASS","BLUM","e_BLUM","LMRAT","e_LMRAT","TEMP","e_TEMP","LRAT","e_LRAT","TBOL","e_TBOL","SIGMA","e_SIGMA"]
+    data_hcsc = pd.read_fwf("MRT-hcsc.txt",colspecs=hcsccolspecs,names=hcscnames, sep=r"\s+", skiprows=28, usecols= ["ID"] + physcolorcolor)
+    
+    distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
+    distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
+    distdata = pd.read_fwf("/Users/wadevining/YellowBall/MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
+    print(data_hcsc["ID"].dtype)
+    print(xmatdata["YB"].dtype)
+
+    print(repr(data_hcsc["ID"].iloc[0]))
+    print(repr(xmatdata["YB"].iloc[0]))
+    merged2 = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
+    merged1 = pd.merge(distdata, merged2, left_on="ID", right_on="ID", how="inner")
+    
+    cordcolspecs=[(0,4),(5,14),(15,23),(24,31),(32,39),(40,47),(48,55),(56,60),(60,68),(69,77),(78,85),(86,94),(95,102),(103,110),(111,120),(121,130),(131,133),(134,136),(137,139),(140,141),(142,146),(147,148),(149,153),(154,158),(159,160)]
+    cordnames=["ID","GLON","GLAT","MWPR","e_GLON","e_GLAT","e_MWPR","HRATE","F8","e_F8","F12","e_F12","F24","e_F24","F70","e_F70","N8","N12","N24","N70","f_SAT","f_MULTI","f_NOSRC","f_PCONF","f_CEXT"]
+    corddata = pd.read_fwf("/Users/wadevining/YellowBall/MRT-phot.txt",colspecs=cordcolspecs,names=cordnames, sep=r"\s+", skiprows = 39, usecols=["ID"] + ["GLON"] + ["GLAT"])
+    
+    merged = pd.merge(corddata, merged1, left_on="ID", right_on="ID", how="inner")
+    
     # Remove Rows based on exclusion parameters
     excludeidx = []
-    for i in range(3945):
+    for i in range(len(merged)):
         for j in range(len(exclusionheaders)):
-            if int(xmatdata[exclusionheaders[j]][i])== 1:
+            if int(merged[exclusionheaders[j]][i])== 1:
                 excludeidx += [i]
         cutoff = exclusions[0]
         FEvals = []
         for k in colorx+colory:
-            FEvals.append(float(xmatdata['e_'+k][i]))
+            FEvals.append(float(merged['e_'+k][i]))
         if cutoff<max(FEvals) or min(FEvals)<0:
             excludeidx += [i]
     excludeidx = list(set(excludeidx))
-    
+    if answer == True:
+        criteria = ((merged["DIST"] < dismax) & 
+                    (merged["DIST"] > dismin) &
+                    (merged["GLAT"] < bmax) &
+                    (merged["GLAT"] > bmin) &
+                    (merged["GLON"] < lmax) &
+                    (merged["GLON"] > lmin))
+        merged = merged.loc[criteria].reset_index(drop=True)
+    if physcolorcolor[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
+        log_physcolorcolor = np.log10(merged[physcolorcolor])
+    else:
+        log_physcolorcolor = merged[physcolorcolor]     
     # Sort into lists based on sorting categories
     categorizedx = []
     categorizedy = []
     uncategorizedx = []
     uncategorizedy = []
+    catergorizedphyscolor = []
     for j in sort[1]:
         catx = []
         caty = []
         uncatx = []
         uncaty = []
-        for i in range(3945):
-            colornumx = float(xmatdata[colorx[0]][i])
-            colornumsx = float(xmatdata['u_' + colorx[0]][i])
-            colordenx = float(xmatdata[colorx[1]][i])
-            colordensx = float(xmatdata['u_' + colorx[1]][i])
+        catphyscolor = []
+        for i in range(len(merged)):
+            colornumx = float(merged[colorx[0]][i])
+            colornumsx = float(merged['u_' + colorx[0]][i])
+            colordenx = float(merged[colorx[1]][i])
+            colordensx = float(merged['u_' + colorx[1]][i])
             entryx = np.log10(colornumx/colordenx)
             unc2x = ((colornumsx**2)/(colornumx*np.log(10))**2)+((colordensx**2)/(colordenx*np.log(10))**2)
             unentryx = np.sqrt(unc2x)
-            colornumy = float(xmatdata[colory[0]][i])
-            colornumsy = float(xmatdata['u_' + colory[0]][i])
-            colordeny = float(xmatdata[colory[1]][i])
-            colordensy = float(xmatdata['u_' + colory[1]][i])
+            colornumy = float(merged[colory[0]][i])
+            colornumsy = float(merged['u_' + colory[0]][i])
+            colordeny = float(merged[colory[1]][i])
+            colordensy = float(merged['u_' + colory[1]][i])
             entryy = np.log10(colornumy/colordeny)
             unc2y = ((colornumsy**2)/(colornumy*np.log(10))**2)+((colordensy**2)/(colordeny*np.log(10))**2)
             unentryy = np.sqrt(unc2y)
@@ -771,32 +1079,38 @@ elif plttype == 2:
                     caty.append(entryy)
                     uncatx.append(unentryx)
                     uncaty.append(unentryy)
+                    catphyscolor.append(float(log_physcolorcolor.iloc[i]))
                 elif j=='Neither':
                     if xmatdata['Multiple Sources'][i] == 0 and xmatdata['Very Circular'][i]==0:
                         catx.append(entryx)
                         caty.append(entryy)
                         uncatx.append(unentryx)
                         uncaty.append(unentryy)
+                        catphyscolor.append(float(log_physcolorcolor.iloc[i]))
                 elif 'Not ' in j:
                     if xmatdata[j.replace('Not ','')][i]==0:
                         catx.append(entryx)
                         caty.append(entryy)
                         uncatx.append(unentryx)
                         uncaty.append(unentryy)
+                        catphyscolor.append(float(log_physcolorcolor.iloc[i]))
                 else:
                     if xmatdata[j][i]==1:
                         catx.append(entryx)
                         caty.append(entryy)
                         uncatx.append(unentryx)
                         uncaty.append(unentryy)
+                        catphyscolor.append(float(log_physcolorcolor.iloc[i]))
         categorizedx.append(catx)
         categorizedy.append(caty)
         uncategorizedx.append(uncatx)
         uncategorizedy.append(uncaty)
+        catergorizedphyscolor.append(catphyscolor)
     dim = get_dimensions(len(categorizedx))
     catlabel = []
     colordatx = []
     colordaty = []
+
     for i in range(len(categorizedx)):
         for j in range(len(categorizedx[i])):
             catlabel.append(datatitles[i])
@@ -807,17 +1121,22 @@ elif plttype == 2:
     print('This is where we make a color-color plot :3')
     fig= plt.figure(figsize=(8*dim[0],8*dim[1]))
     fig.canvas.header_visible= False
-    fig.suptitle(r'$log_{10}$'+f'({colory[0]}/{colory[1]}) v. '+r'$log_{10}$'+f'({colorx[0]}/{colorx[1]})  Color-Color Density', fontsize=20, y=.98)
+    if cutoff < 1000:
+        cut = f"Cutoff {str(cutoff)}"
+    else:
+        cut = "No Cutoff"
+    fig.suptitle(r'$log_{10}$'+f'({colory[0]}/{colory[1]}) v. '+r'$log_{10}$'+f'({colorx[0]}/{colorx[1]})  Color-Color Density'+"\n"+cut, fontsize=20, y=.98)
     plt.axis('off')
-    fig.subplots_adjust(left=.1, right=.95, top=.9, bottom=.1)
+    fig.subplots_adjust(left=.2, right=.95, top=.85, bottom=.1)
     plt.text(.5, .02, r'$log_{10}'+f'({colorx[0]}/{colorx[1]})$', fontsize=28, ha='center', transform=fig.transFigure)
     plt.text(.015, .5, r'$log_{10}'+f'({colory[0]}/{colory[1]})$', fontsize=28, rotation='vertical', va='center', transform=fig.transFigure)
-    plt.text(.5, 1.075,'Cutoff: '+str(cutoff), fontsize = 20, ha='center', transform=fig.transFigure)
+    plt.text(.5, 1.075,'Cutoff: '+cut, fontsize = 20, ha='center', transform=fig.transFigure)
     rangex = get_rangecc(categorizedx)
     rangey = get_rangecc(categorizedy)
     for i in range(len(sort[1])):
         title = datatitles[i]
         data = [categorizedx[i],categorizedy[i]]
+        physicalcolor = catergorizedphyscolor[i]
         n= len(data[0])
         avecolor= (float(round(statistics.mean(data[0]),2)),float(round(statistics.mean(data[1]),2)))
         stdevcolor = (float((round(np.std(data[0]),3))),float(round(np.std(data[1]),3)))
@@ -832,12 +1151,7 @@ elif plttype == 2:
         plt.title(title, fontsize=28)
         plt.xlim(rangex[0],rangex[1])
         plt.ylim(rangey[0],rangey[1])
-        if n >100:
-            sns.kdeplot(data= df[(df == datatitles[i]).any(axis=1)], x='xcoor', y='ycoor', 
-                        shade=True, cmap=ccolordict[title], shade_lowest=False)
-        else:
-            for j in range(len(data[0])):
-                plt.plot(data[0][j],data[1][j],'o', color= colordict[title])
+        sc = minifig.scatter(data[0], data[1], c=physicalcolor, cmap="coolwarm_r", s = 10)
         minifig.set(xlabel=None, ylabel=None)
         minifig.tick_params(labelsize=20)
         #Ave HII box and cutoffs will only show for F70/F24 vs. F24/F8 plots 
@@ -851,9 +1165,9 @@ elif plttype == 2:
             plt.hlines(0.26, 1.05,1.47, colors='k', linestyles='solid', label='')
             plt.hlines(0.84, 1.05, 1.47, colors='k', linestyles='solid', label='')
         #Show Statistics on Plot
-        minifig.text(0.1,.88,'N=' + str(n), fontsize=20, transform=minifig.transAxes)
-        minifig.text(0.1,.84, r'$\bar{x} =$' + str(avecolor), fontsize=20, transform=minifig.transAxes)
-        minifig.text(0.1,.8, r'$s =$' + str(stdevcolor), fontsize=20, transform=minifig.transAxes)
+        minifig.text(0.05,.94,'N=' + str(n), fontsize=20, transform=minifig.transAxes)
+        minifig.text(0.05,.9, r'$\bar{x} =$' + str(avecolor), fontsize=20, transform=minifig.transAxes)
+        minifig.text(0.05,.86, r'$s =$' + str(stdevcolor), fontsize=20, transform=minifig.transAxes)
         plt.hlines(rangey[0] + rangey[2], (rangex[1] - rangex[2])-uncertaintyx, (rangex[1] - rangex[2])+uncertaintyx, colors='k', linestyles='dotted')
         plt.vlines(rangex[1] - rangex[2], (rangey[0] + rangey[2])-uncertaintyy, (rangey[0] + rangey[2])+uncertaintyy, colors='k', linestyles='dotted')
        # GWC removed 70/24 and 24/8 from the print statements on 11may26.
@@ -861,6 +1175,7 @@ elif plttype == 2:
        # print('24/8 Uncertainty ' + title + ': '+ str(uncertaintyy))
         print('Uncertaintyx ' + title + ': '+ str(uncertaintyx))
         print('Uncertaintyy ' + title + ': '+ str(uncertaintyy))
+    fig.colorbar(sc, ax=fig.axes, label=physlabel)
     fig.savefig(fname= save_name, transparent=True)
     plt.ioff()
     plt.show()
