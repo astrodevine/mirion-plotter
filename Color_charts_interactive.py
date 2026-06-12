@@ -165,7 +165,7 @@ def select_properties(plttype):
         # axes = plt.axes([.2,.3,.7,.5])
         # radio_hist= RadioButtons(axes, coloroptions, label_props={'fontsize':[15]*len(coloroptions)},
                                  # radio_props={'s':[64]*len(coloroptions)})
-        axes = plt.axes([.3,.3,.4,.6])
+        axes = plt.axes([.25,.3,.5,.6])
         label_props={'fontsize':[15]*len(physical_options)},
                                         # radio_props={'s':[64]*len(coloroptions)})
         radio_hist= RadioButtons(axes, physical_options, label_props={'fontsize':[10]*len(physical_options)},
@@ -508,7 +508,7 @@ def physcolor():
     physlabel = "Greybody Temperature"
     excsel = plt.figure(figsize=(4,6))
     excsel.suptitle("Choose Physical Property To Include")
-    #startbox_axes = plt.axes([.2,.8,.4,.1])
+    #startbox_axes = plt.axes([.2,.8,.6,.1])
     axes0 = plt.axes([.15,.3,.7,.5])
     global clicked0
     clicked0 = [False] * len(physoption)
@@ -1151,7 +1151,7 @@ elif plttype == 2:
         plt.title(title, fontsize=28)
         plt.xlim(rangex[0],rangex[1])
         plt.ylim(rangey[0],rangey[1])
-        sc = minifig.scatter(data[0], data[1], c=physicalcolor, cmap="coolwarm_r", s = 10)
+        sc = minifig.scatter(data[0], data[1], c=physicalcolor, cmap="rainbow", s = 10)
         minifig.set(xlabel=None, ylabel=None)
         minifig.tick_params(labelsize=20)
         #Ave HII box and cutoffs will only show for F70/F24 vs. F24/F8 plots 
