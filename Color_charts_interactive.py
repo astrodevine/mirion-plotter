@@ -6,40 +6,39 @@ from matplotlib.widgets import RadioButtons
 import statistics
 import math
 from matplotlib.lines import Line2D
-
 plt.ion()
 import os
 import pandas as pd
-
 # These lines supress warnings
 import warnings
 warnings.filterwarnings('ignore')
-
 # 3/29/26: GWC changes name of input Plot Master csv file to PlotMaster-GWC.csv
 # Also installed 'seaborn' in environment MakePlots
 path= '.'
 catalog_name= os.path.join(path, 'PlotMaster-10fluxes-GWC.csv') #Crossmatch catalog csv name
 save_name= os.path.join(path, 'FigureX.png') 
-
 ####################
 # Define Functions #
 ####################
 #Multiply used functions
+#restarts the whole script, used for the "try again" button
 def restart(event):
     import os
     import sys
     os.execv(sys.executable, [sys.executable] + sys.argv)
+#closes the current popup and flips the done flag so the pause loop exits
 def close(event):
     global done
     done = True
     plt.close()
-
 #Functions for step 1:
+#sets plot type to histogram and closes the popup
 def make_histograms(event):
     global plttype
     plt.close()
     plttype = 3
     return plttype
+#sets scatter plot mode using the full table/catalog option
 def table_scatter(event):
     global plttype
     global done
@@ -49,13 +48,7 @@ def table_scatter(event):
     scatopt = 3
     done = True
     return scatopt
-def physscat(event):
-    global done
-    global scatopt
-    plt.close()
-    done = True
-    scatopt = 2
-    return scatopt
+#sets plot type to table
 def make_table1(event):
     global plttype
     global done
@@ -63,6 +56,7 @@ def make_table1(event):
     plttype = 6
     done = True
     return plttype
+#sets scatter option 1 half catalog
 def table_scatter_opt(event):
     global scatopt
     global done
@@ -70,6 +64,7 @@ def table_scatter_opt(event):
     scatopt = 1
     done = True
     return scatopt
+#sets scatter option 4 quartile scatter
 def scatter_quar(event):
     global scatopt
     global done
@@ -77,41 +72,31 @@ def scatter_quar(event):
     scatopt = 4
     done = True
     return scatopt
+#sets plot type to color histogram
 def make_histograms_color(event):
     global plttype
     plt.close()
     plttype = 1
     return plttype
+#sets plot type to physical property histogram
 def make_histograms_physical(event):
     global plttype
     plt.close()
     plttype = 4
     return plttype
+#sets plot type to color-color plot
 def make_colorcolor(event):
     global plttype
     plt.close()
     plttype = 2
     return plttype
-def make_table(event):
-    global plttype
-    plt.close()
-    plttype = 6
-    return plttype
-def make_scatter_color(event):
-    global done
-    global plttype 
-    global scatopt
-    plt.close()
-    done = True
-    plttype = 7
-    scatopt = 3
-    return plttype
+#sets plot type to include distance filtering
 def includedistacne(event):
     global plttype
     plt.close()
     plttype = 5
     return plttype
-
+#popup to pick physical property and quartile for the table's physical filter
 def select_table_physical():
     global physical
     global physeq
@@ -131,28 +116,29 @@ def select_table_physical():
         # axes = plt.axes([.2,.3,.7,.5])
         # radio_hist= RadioButtons(axes, coloroptions, label_props={'fontsize':[15]*len(coloroptions)},
                                  # radio_props={'s':[64]*len(coloroptions)})
+    #radio buttons for physical property choice
     axes2 = plt.axes([.25,.45,.5,.35])
                                         # radio_props={'s':[64]*len(coloroptions)})
     radio_hist2= RadioButtons(axes2, physical_options, label_props={'fontsize':[10]*len(physical_options)},
                                         radio_props={'s':[64]*len(physical_options)})
     radio_hist2.on_clicked(histphysicalfunc)
-
+    #radio buttons for quartile choice
     axes3 = plt.axes([.25,.2,.5,.2])
                                         # radio_props={'s':[64]*len(coloroptions)})
     radio_hist3= RadioButtons(axes3, quartile, label_props={'fontsize':[10]*len(quartile)},
                                         radio_props={'s':[64]*len(quartile)})
     radio_hist3.on_clicked(quartilefunc)
-
     axes2 = plt.axes([.2,.05,.6,.1])
     contbutton = Button(axes2, 'Continue')
     contbutton.on_clicked(close)
     plt.show()
-        
+    #pauses execution until the user hits continue
     global done
     done = False
     while done==False:
         plt.pause(.1)
     return physical
+#popup to pick physical property for the quartile
 def select_table_physical_opt():
     global physical
     global phys_title
@@ -171,7 +157,6 @@ def select_table_physical_opt():
     radio_hist2= RadioButtons(axes2, physical_options, label_props={'fontsize':[10]*len(physical_options)},
                                         radio_props={'s':[64]*len(physical_options)})
     radio_hist2.on_clicked(histphysicalfunc_tab)
-
     axes2 = plt.axes([.2,.05,.6,.1])
     contbutton = Button(axes2, 'Continue')
     contbutton.on_clicked(close)
@@ -182,6 +167,7 @@ def select_table_physical_opt():
     while done==False:
         plt.pause(.1)
     return physical
+#popup to pick which catalog to filter the table by
 def select_table_catalog():
     global table_cat
     global table_cat_title
@@ -196,24 +182,11 @@ def select_table_catalog():
     colorsel = plt.figure(figsize= (6,5))
         # colorsel.suptitle('Select Color', fontsize = 15)
     colorsel.suptitle('Select Catalog For Table', fontsize = 20, y = .96)
-        # axes = plt.axes([.2,.3,.7,.5])
-        # radio_hist= RadioButtons(axes, coloroptions, label_props={'fontsize':[15]*len(coloroptions)},
-                                 # radio_props={'s':[64]*len(coloroptions)})
-   # startbox_axes10 = plt.axes([.3,.78,.4,.1])
-   # cutoffentry10 = TextBox(startbox_axes10, 'Cutoff:')
-   # cutoffentry10.on_submit(entrynumber)
-   # axes1 = plt.axes([.25,.66,.5,.1])
-                                        # radio_props={'s':[64]*len(coloroptions)})
-   # radio_hist1= RadioButtons(axes1, cutoff_sign, label_props={'fontsize':[10]*len(cutoff_sign)},
-   #                                     radio_props={'s':[64]*len(cutoff_sign)})
-   # radio_hist1.on_clicked(cutsign)
-
     axes = plt.axes([.25,.14,.5,.5])
                                         # radio_props={'s':[64]*len(coloroptions)})
     radio_hist= RadioButtons(axes, table_sortlist, label_props={'fontsize':[10]*len(table_sortlist)},
                                         radio_props={'s':[64]*len(table_sortlist)})
     radio_hist.on_clicked(tablecatfunc)
-
     axes2 = plt.axes([.2,.02,.6,.1])
     contbutton = Button(axes2, 'Continue')
     contbutton.on_clicked(close)
@@ -224,18 +197,15 @@ def select_table_catalog():
     while done==False:
         plt.pause(.1)
     return 
+#popup for choosing color histogram vs physical property histogram
 def select_color_physical():
     global plttype
-
     plttype = 0
-
     secondpage = plt.figure(figsize= (5,3))
     secondpage.suptitle('Select Histogram Type', fontsize = 20, y = .9)
-
     hist_axes_color = plt.axes([.15,.55,.7,.25])
     histbutton_color = Button(hist_axes_color, 'Color Histogram', )
     histbutton_color.on_clicked(make_histograms_color)
-
     hist_axes_physical = plt.axes([.15,.25,.7,.25])
     histbutton_physical = Button(hist_axes_physical, 'Physical Property Histogram', )
     histbutton_physical.on_clicked(make_histograms_physical)
@@ -243,11 +213,8 @@ def select_color_physical():
     while plttype==0:
         plt.pause(0.1)
     plt.close()
-
     return plttype
-
-#Functions for Step 2:
-
+#popup for picking whether points are plotted by catalog or physical (scatter plot menu)
 def select_cat_o_phys():
     startup5 = plt.figure(figsize= (5,3))
     startup5.suptitle('Select Plot Points', fontsize = 20, y = .9)
@@ -260,16 +227,16 @@ def select_cat_o_phys():
     table_axes5 = plt.axes([.15,.02,.7,.20])
     tablebutton5 = Button(table_axes5, 'Scatter Plot Quartile')
     tablebutton5.on_clicked(scatter_quar)
-
     global done
     done = False
     while done==False:
         plt.pause(.1)
     plt.show()
     return 
-
+#popup for choosing color or physical property depending on plot type
 def select_properties(plttype):
     global done
+    #plttype 1 = color histogram, choose single color ratio
     if plttype == 1:
         # GWC - Changed figsize, fontsize, axes to make room for more colors. 5/12/26
         # colorsel = plt.figure(figsize= (5,4))
@@ -285,7 +252,6 @@ def select_properties(plttype):
         radio_hist= RadioButtons(axes, coloroptions, label_props={'fontsize':[10]*len(coloroptions)},
                                         radio_props={'s':[64]*len(coloroptions)})
         radio_hist.on_clicked(histcolorfunc)
-
         axes2 = plt.axes([.2,.15,.7,.1])
         contbutton = Button(axes2, 'Continue')
         contbutton.on_clicked(close)
@@ -295,7 +261,7 @@ def select_properties(plttype):
         while done==False:
             plt.pause(.1)
         return color
-        
+    #plttype 2 = color-color plot, choose x-axis and y-axis colors
     if plttype == 2:
         global colorcolor
         # GWC - colorcolor needs to point to 1st entry in colordict.
@@ -332,6 +298,7 @@ def select_properties(plttype):
         while done==False:
             plt.pause(.1)
         return colorcolor
+    #plttype 4 = physical property histogram, choose physical property
     if plttype == 4:
         global physical
         global physeq
@@ -353,7 +320,6 @@ def select_properties(plttype):
         radio_hist= RadioButtons(axes, physical_options, label_props={'fontsize':[10]*len(physical_options)},
                                         radio_props={'s':[64]*len(physical_options)})
         radio_hist.on_clicked(histphysicalfunc)
-
         axes2 = plt.axes([.2,.15,.6,.1])
         contbutton = Button(axes2, 'Continue')
         contbutton.on_clicked(close)
@@ -364,6 +330,7 @@ def select_properties(plttype):
         while done==False:
             plt.pause(.1)
         return physical
+#popup asking whether to filter table by physical property quartile
 def physquestion():
     global physanswer
     physanswer = True
@@ -378,11 +345,11 @@ def physquestion():
     contbutton.on_clicked(close)
     global done
     done = False
-
     while not done:
         plt.pause(.1)
     plt.show()
     return
+#popup asking whether to filter by distance
 def distanceoption():
     global answer
     answer = True
@@ -397,21 +364,22 @@ def distanceoption():
     contbutton.on_clicked(close)
     global done
     done = False
-
     while not done:
         plt.pause(.1)
     plt.show()
     return
+#converts yes/no label into a boolean for distance ques
 def yesorno(label):
     global answer
-    answerlst = {"Yes": True, 
-                    "No": False,}
+    answerlst = {"Yes": True, "No": False,}
     answer = answerlst[label] 
+#converts yes/no label into a bool for physical quartile ques
 def physyesorno(label):
     global physanswer
     physanswerlst = {"Yes": True, 
                     "No": False,}
     physanswer = physanswerlst[label]  
+#popup to set distance cutoffs, defaults cover all distances
 def actdistance():
     global lmax
     global lmin
@@ -430,42 +398,33 @@ def actdistance():
     startbox_axes10 = plt.axes([.1,.75,.4,.1])
     cutoffentry10 = TextBox(startbox_axes10, 'l Max')
     cutoffentry10.on_submit(entrynumber10)
-
     startbox_axes11 = plt.axes([.1,.63,.4,.1])
     cutoffentry11 = TextBox(startbox_axes11, 'l Min')
     cutoffentry11.on_submit(entrynumber11)
-
     startbox_axes12 = plt.axes([.1,.51,.4,.1])
     cutoffentry12 = TextBox(startbox_axes12, 'b Max')
     cutoffentry12.on_submit(entrynumber12)
-
     startbox_axes13 = plt.axes([.1,.39,.4,.1])
     cutoffentry13 = TextBox(startbox_axes13, 'b Min')
     cutoffentry13.on_submit(entrynumber13)
-
     startbox_axes14 = plt.axes([.1,.27,.4,.1])
     cutoffentry14 = TextBox(startbox_axes14, 'Distance Max')
     cutoffentry14.on_submit(entrynumber14)
-
     startbox_axes15 = plt.axes([.1,.15,.4,.1])
     cutoffentry15 = TextBox(startbox_axes15, 'Distance Min')
     cutoffentry15.on_submit(entrynumber15)
-
     axes9 = plt.axes([.25,.03,.5,.1])
     contbutton4 = Button(axes9, 'Continue')
     contbutton4.on_clicked(close)
     global done
     done = False
-
     while not done:
         plt.pause(.1)
     plt.show()
     return
-def cutsign(label):
-    global sign 
-    sign = label
-    return sign
+
 # GWC adds 160 um on 5/8/26. Added all longer-wavelength fluxes on 5/12/26.
+#maps the label picked in the color radio buttons to the actual flux column pair
 def histcolorfunc(label):
     global color
     colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
@@ -485,6 +444,7 @@ def histcolorfunc(label):
                  '70/8': ['F70','F8'],'24/12': ['F24','F12'],'24/8': ['F24','F8'],'12/8': ['F12','F8']}
     color = colordict[label]
     return color
+#maps the picked table catalog label to its filter name and title
 def tablecatfunc(label):
     global table_cat
     global table_cat_title
@@ -495,6 +455,7 @@ def tablecatfunc(label):
     table_cat = tbcat[label]
     table_cat_title = tbcat_title[label]
     return table_cat, table_cat_title
+#maps picked physical property label to its column name, axis label, and title 
 def histphysicalfunc(label):
     global physical
     global physeq
@@ -519,6 +480,7 @@ def histphysicalfunc(label):
     physeq = physicalform[label]
     phys_title = label
     return physical, physeq
+#maps for the quartile-table columns 
 def histphysicalfunc_tab(label):
     global physical
     global phys_title
@@ -533,6 +495,7 @@ def histphysicalfunc_tab(label):
     physical = physicaldict[label]
     phys_title = label
     return physical
+#sets the x-axis color pair for the color-color plot
 def colorfuncx(label):
     global colorcolor
     colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
@@ -553,6 +516,7 @@ def colorfuncx(label):
     color = colordict[label]
     colorcolor[0]=color
     return colorcolor
+#sets the y-axis color pair for the color-color plot
 def colorfuncy(label):
     global colorcolor
     colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
@@ -573,15 +537,16 @@ def colorfuncy(label):
     color = colordict[label]
     colorcolor[1]=color
     return colorcolor
-def physicalswitch(label):
+#maps physical property radio choice to its column name
+def physicalswitch(label): 
     global physcolorcolor
     global physlabel
+    global physicalform
     physicaldict = {"Luminosity Ratio": ['LRAT'], 
                     "Bolometric Temperature": ['TBOL'],
                     "Surface Density": ['SIGMA'],
                     "Greybody Temperature": ['TEMP'],
-                    "Mass": ["MASS"],
-                    "Bolometric Luminosity": ["BLUM"],
+                    "Mass": ["MASS"],"Bolometric Luminosity": ["BLUM"],
                     "Diameter": ["DIAM"],
                     "Bolometric Luminosity/Mass": ["LMRAT"]}
     physicalform = {"Temperature": r"Temperature [$T_{\mathrm{bol}}/\mathrm{K}$]",
@@ -590,6 +555,7 @@ def physicalswitch(label):
     physlabel = label
     #phys_title = label
     return physcolorcolor, physlabel
+#maps quartile choice to the cutoff
 def quartilefunc(label):
     global quartile_val
     global quar_title
@@ -600,7 +566,7 @@ def quartilefunc(label):
     quartile_val = quartiledict[label]
     quar_title = label
     return quartile_val, quar_title
-#Functions For Step 3
+#popup to choose crossmatch or flag then pick which categories to plot
 def sortoptions():
     sortsel = plt.figure(figsize=(5,4))
     sortsel.suptitle('Sort Plots By', fontsize = 15)
@@ -608,6 +574,7 @@ def sortoptions():
     radio_sort= RadioButtons(axes, sorttypes, label_props={'fontsize':[15]*2},
                              radio_props={'s':[64]*2})
     radio_sort.on_clicked(categoryselect)
+    #initializes categories using the default sort type before the user clicks anything
     categoryselect(sorttypes[0])
     checked = [False]*len(categories)
     axes2 = plt.axes([.2,.05,.7,.2])
@@ -615,6 +582,7 @@ def sortoptions():
     contbutton.on_clicked(close)
     global done
     done = False
+    #rebuilds the checkbox list each loop since categories can change if sort type changes
     while not done:
         cataxes = plt.axes([.2,.25,.7,.4])
         catselect = CheckButtons(cataxes, categories, checked, 
@@ -629,41 +597,48 @@ def sortoptions():
     sort = sorttypes[idx]
     catplotted = [x for x in categories if checked[categories.index(x)]==True]
     return sort, catplotted
-
+#swaps the active crossmatch vs flag based on sort type pick
 def categoryselect(label):
     categorydict = {sorttypes[0]:sortlist[0], sorttypes[1]:sortlist[1]}
     global categories
     categories = categorydict[label]
     
-#Functions for step 4
+#stores the manually entered error cutoff value
 def entrynumber(entry):
     global cutoff
     cutoff = float(entry)
     return cutoff
+#stores l max entry
 def entrynumber10(entry):
     global lmax
     lmax = float(entry)
     return lmax
+#stores l min entry
 def entrynumber11(entry):
     global lmin
     lmin = float(entry)
     return lmin
+#stores b max entry
 def entrynumber12(entry):
     global bmax
     bmax = float(entry)
     return bmax
+#stores b min entry
 def entrynumber13(entry):
     global bmin
     bmin = float(entry)
     return bmin
+#stores distance max entry
 def entrynumber14(entry):
     global dismax
     dismax = float(entry)
     return dismax
+#stores distance min entry
 def entrynumber15(entry):
     global dismin
     dismin = float(entry)
     return dismin
+#popup to set error cutoff and choose exclusion flags for histograms/color-color plots
 def excludeoptions():
     excsel = plt.figure(figsize=(10,6))
     excsel.suptitle('Set Exclusion Parameters')
@@ -671,6 +646,7 @@ def excludeoptions():
     global cutoff
     cutoffentry = TextBox(startbox_axes, 'Set Cutoff')
     cutoffentry.on_submit(entrynumber)
+    #checkbox toggles for "by flag" and "by crossmatch" exclusion groups
     axes0 = plt.axes([.1,.6,.4,.1])
     global clicked0
     clicked0 = [False]
@@ -694,6 +670,7 @@ def excludeoptions():
     def marked1(label):
         index= xmatexlist.index(label)
         clickedcats1[index] = not clickedcats1[index]
+    #only shows the detailed flag/crossmatch checkbox lists once their parent checkbox is ticked
     while not done:
         if clicked0[0]==True:
             axes3 = plt.axes([.1,.25,.4,.35])
@@ -718,7 +695,7 @@ def excludeoptions():
     catexc0 = [x for x in flagexlist if clickedcats0[flagexlist.index(x)]==True]
     catexc1 = [x for x in xmatexlist if clickedcats1[xmatexlist.index(x)]==True]
     return cutoff, [catexc0,catexc1]
-
+#popup used for physical property histogram exclusions
 def excludeoptionsphys():
     excsel = plt.figure(figsize=(4,6))
     excsel.suptitle('Set Exclusion Parameters')
@@ -737,12 +714,11 @@ def excludeoptionsphys():
     contbutton.on_clicked(close)
     global done
     done = False
-
     while not done:
         plt.pause(.1)
     plt.show()
     return cutoff, clicked0
-
+#popup to choose which physical property the color-color scatter points
 def physcolor():
     global physcolorcolor
     global physlabel
@@ -761,24 +737,25 @@ def physcolor():
     contbutton.on_clicked(close)
     global done
     done = False
-
     while not done:
         plt.pause(.1)
     plt.show()
     return
-
+#toggles the flag checkbox
 def excategories0(label):
     global clicked0
     clicked0[0]= not clicked0[0]
+#toggles the by crossmatch checkbox 
 def excategories1(label):
     global clicked1
     clicked1[0]=not clicked1[0]
+#toggles an individual flag checkbox
 def excategories2(label):
     index = flagexlist.index(label)
     clicked0[index]=not clicked0[index]
-
         
 # For Plotting
+#picks a reasonable number of histogram bins based on n
 def get_binlen(n):
     log = np.log10(n)
     if log >=3:
@@ -786,7 +763,7 @@ def get_binlen(n):
     else:
         bins = math.ceil(log)
     return 10*(bins - 1) + 5
-
+#figures out a square grid
 def get_dimensions(n):
     root = math.sqrt(n)
     x = math.ceil(root)
@@ -794,56 +771,48 @@ def get_dimensions(n):
     dimensions = [x,y]
     return dimensions
 
+#handles the empty-data case by popping a "no yellow balls" message and letting the user restart
 def get_range(datacol):
     longest_list = max(datacol, key=len)
     if len(longest_list) == 0:
             plt.close(fig)
             excsel2 = plt.figure(figsize=(3,2))
             excsel2.suptitle('No Yellow Balls to Plot')
-
             axes2 = plt.axes([.25,.03,.5,.1])
             contbutton2 = Button(axes2, 'Try Again')
             contbutton2.on_clicked(restart)
-
             global done1
             done1 = False
-
             while not done1:
                 plt.pause(.1)
             plt.show()
     mean = statistics.mean(longest_list)
     dev = np.std(longest_list)
     return [mean-4*dev, mean + 4*dev]
-
+#(+/- 6 stdev) returns the stdev itself, used for color-color plots
 def get_rangecc(datacol):
     longest_list = max(datacol, key=len)
     if len(longest_list) == 0:
             plt.close(fig)
             excsel2 = plt.figure(figsize=(3,2))
             excsel2.suptitle('No Yellow Balls to Plot')
-
             axes2 = plt.axes([.25,.03,.5,.1])
             contbutton2 = Button(axes2, 'Try Again')
             contbutton2.on_clicked(restart)
-
             global done1
             done1 = False
-
             while not done1:
                 plt.pause(.1)
             plt.show()
     mean = statistics.mean(longest_list)
     dev = np.std(longest_list)
     return [mean-6*dev, mean + 6*dev, dev]
-
 ######################
 # Start Program Here #
 ######################
-
 ##############################################################
 #Selection Steps: Collect user input and store into variables#
 ##############################################################
-
 #Step 1: Choose to generate either a histogram or color-color plot
 startup = plt.figure(figsize= (5,3))
 startup.suptitle('Select Plot Type', fontsize = 18, y = .95)
@@ -859,22 +828,19 @@ tablebutton.on_clicked(make_table1)
 cc_axes2 = plt.axes([.15,.05,.7,.15])
 ccbutton2 = Button(cc_axes2, 'Scatter Plot')
 ccbutton2.on_clicked(table_scatter)
-
 plttype= 0
 plt.show()
 while plttype==0:
     plt.pause(0.1)
-
 plt.close()
 disoption = ["Yes","No"]
-
+#scatter plot skips the distance filter menu, everything else gets asked
 if plttype != 7:
     distanceoption()
     if answer == True:
         actdistance()
     if plttype == 3:
         select_color_physical()
-
 # Step 2: Choose what color(s) you want to plot
 coloroptions = ['1100/870','1100/500','1100/350','1100/250','1100/160','1100/70','1100/24',
                 '1100/12','1100/8','870/500','870/350','870/250','870/160','870/70','870/24',
@@ -882,7 +848,7 @@ coloroptions = ['1100/870','1100/500','1100/350','1100/250','1100/160','1100/70'
                 '350/250','350/160','350/70','350/24','350/12','350/8','250/160','250/70',
                 '250/24','250/12','250/8',
                 '160/70','160/24','160/12','160/8','70/24','70/12','70/8','24/12','24/8','12/8']
-
+#same pairs as coloroptions but as actual flux column name lists
 colorsep = [['F1100','F870'], ['F1100','F500'], ['F1100','F350'],
                 ['F1100','F250'], ['F1100','F160'], ['F1100','F70'],
                 ['F1100','F24'], ['F1100','F12'], ['F1100','F8'],
@@ -898,7 +864,6 @@ colorsep = [['F1100','F870'], ['F1100','F500'], ['F1100','F350'],
                 ['F160','F70'], ['F160','F24'], ['F160','F12'], 
                 ['F160','F8'],['F70','F24'], ['F70','F12'],
                 ['F70','F8'],['F24','F12'], ['F24','F8'], ['F12','F8']]
-
 physical_options = ["Luminosity Ratio", 
                     "Bolometric Temperature",
                     "Surface Density",
@@ -908,13 +873,12 @@ physical_options = ["Luminosity Ratio",
                     "Diameter",
                     "Bolometric Luminosity/Mass"]
 table_sortlist = ['All Sources', 'RMS', 'WISE C,G,K', 'WISE Q', 'CORNISH', 'No Association']
-
 cutoff_sign = [">","<"]
-
 quartile = ["0-25%","25-50%","50-75%","75-100%"]
 # GWC - This assignment needs to point to the first entry in colordict. 5/12/26
 # color = ['F70','F24']
 color = ['F1100','F870']
+#routes to the right selection popups depending on chosen plot type
 if plttype == 6:
     select_table_catalog()
     flagexlist = ['No Obvious Source', 'Poor Confidence', 'Multiple Sources', 
@@ -936,6 +900,7 @@ else:
                     ['All Sources', 'Multiple Sources', 'Very Circular', 
                     'Not Multiple Sources', 'Not Very Circular', 'Neither']]
     sort = sortoptions()
+    #plttype 4 handles its own exclusion popup below, everything else uses excludeoptions()
     if plttype != 4 :
         #Step 4: Select parameters used to exclude data
         extype0 = ['By Flag']
@@ -944,18 +909,14 @@ else:
                     'Very Circular']
         xmatexlist = ['RMS', 'WISE Q', 'WISE C,G,K', 'CORNISH', 'No Association']
         cutoff = 1000
-
         exclusions = excludeoptions()
-
         ########################
         # Create Selected Plot #
         ########################
+        #plot color mapping 
         colordict = {'All Sources': 'green', 'RMS': 'red', 'WISE C,G,K':'orange', 'WISE Q': 'blue',
                     'CORNISH':'purple', 'No Association':'gray', 'Multiple Sources': 'red', 'Very Circular':'orange', 
                     'Not Multiple Sources': 'blue','Not Very Circular':'purple', 'Neither':'gray'}
-        ccolordict = {'All Sources': 'Greens', 'RMS': 'Reds', 'WISE C,G,K':'Oranges', 'WISE Q': 'Blues',
-                    'CORNISH':'Purples', 'No Association':'Grays', 'Multiple Sources': 'Reds', 'Very Circular':'Oranges', 
-                    'Not Multiple Sources': 'Blues','Not Very Circular':'Purples', 'Neither':'Grays'}
     if plttype == 2 :
         physoption = ["Luminosity Ratio", 
                         "Bolometric Temperature",
@@ -967,23 +928,20 @@ else:
                         "Bolometric Luminosity/Mass"]
         physcolor()
     if plttype == 4 :
-        #Step 4: Select parameters used to exclude data
+        #Step 4: Select parameters used to exclude data 
         extype0 = ['By Flag']
         flagexlist = ['No Obvious Source', 'Poor Confidence', 'Multiple Sources', 
                     'Very Circular']
         cutoff = 1000
-
         exclusions = excludeoptionsphys()
-
         ########################
         # Create Selected Plot #
         ########################
         colordict = {'All Sources': 'green', 'RMS': 'red', 'WISE C,G,K':'orange', 'WISE Q': 'blue',
                     'CORNISH':'purple', 'No Association':'gray', 'Multiple Sources': 'red', 'Very Circular':'orange', 
                     'Not Multiple Sources': 'blue','Not Very Circular':'purple', 'Neither':'gray'}
-        ccolordict = {'All Sources': 'Greens', 'RMS': 'Reds', 'WISE C,G,K':'Oranges', 'WISE Q': 'Blues',
-                    'CORNISH':'Purples', 'No Association':'Grays', 'Multiple Sources': 'Reds', 'Very Circular':'Oranges', 
-                    'Not Multiple Sources': 'Blues','Not Very Circular':'Purples', 'Neither':'Grays'}
+        
+#plttype 1 = color histogram
 if plttype == 1:
     #Put together a relevant dataframe
     sortheaders = [x.replace('Not ','') for x in sort[1] if x != 'All Sources' and x!= 'Neither']
@@ -992,6 +950,7 @@ if plttype == 1:
         sortheaders.append('Multiple Sources')
         sortheaders.append('Very Circular')
     sortheaders = list(set(sortheaders))
+    #builds the list of exclusion columns to read in
     exclusionheaders = exclusions[1][0]+exclusions[1][1]
     if 'No Obvious Source' in exclusionheaders:
         exclusionheaders.remove('No Obvious Source')
@@ -1001,21 +960,24 @@ if plttype == 1:
         exclusionheaders.remove('Poor Confidence')
         exclusionheaders += ['Poor Confidence ' + color[0].replace('F',''), 
                              'Poor Confidence ' + color[1].replace('F','')]
+    #reads only the columns we actually need from the crossmatch catalog
     xmatdata = pd.read_csv(catalog_name, usecols=['YB']+color+['u_'+color[0],'u_'+color[1]]+
                            ['e_'+color[0],'e_'+color[1]]+ sortheaders+exclusionheaders)
  
+    #reads distance data from the MRT distance table
     distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
     distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
     distdata = pd.read_fwf("MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
-
+    #reads galactic coordinates from the MRT photometry table
     cordcolspecs=[(0,4),(5,14),(15,23),(24,31),(32,39),(40,47),(48,55),(56,60),(60,68),(69,77),(78,85),(86,94),(95,102),(103,110),(111,120),(121,130),(131,133),(134,136),(137,139),(140,141),(142,146),(147,148),(149,153),(154,158),(159,160)]
     cordnames=["ID","GLON","GLAT","MWPR","e_GLON","e_GLAT","e_MWPR","HRATE","F8","e_F8","F12","e_F12","F24","e_F24","F70","e_F70","N8","N12","N24","N70","f_SAT","f_MULTI","f_NOSRC","f_PCONF","f_CEXT"]
     corddata = pd.read_fwf("MRT-phot.txt",colspecs=cordcolspecs, names=cordnames, sep=r"\s+", skiprows = 39, usecols=["ID"] + ["GLON"] + ["GLAT"])
-
+    #merges distance, crossmatch, and coordinate data together on the source ID
     merged1 = pd.merge(distdata, xmatdata, left_on="ID", right_on="YB", how="inner")
     merged = pd.merge(corddata, merged1, left_on="ID", right_on="ID", how="inner")
     # Remove Rows based on exclusion parameters
     # Changing range from 6176 to 3945 for Herschel-matched objects. GWC 5/8/26.
+    #flags any row that has an excluded flag set, or flux error exceeds the cutoff, for removal
     excludeidx = []
     for i in range(len(merged)):
         for j in range(len(exclusionheaders)):
@@ -1026,6 +988,7 @@ if plttype == 1:
             excludeidx += [i]
     excludeidx = list(set(excludeidx))
     # Sort into lists based on sorting categories
+    #restricts to sources within the chosen l/b/distance window
     if answer == True:
         criteria = ((merged["DIST"] < dismax) & 
                     (merged["DIST"] > dismin) &
@@ -1034,6 +997,7 @@ if plttype == 1:
                     (merged["GLON"] < lmax) &
                     (merged["GLON"] > lmin))
         merged = merged.loc[criteria].reset_index(drop=True)
+    #puts sources into each chosen category
     categorized = []
     uncategorized = []
     for j in sort[1]:
@@ -1045,6 +1009,7 @@ if plttype == 1:
             colorden = float(merged[color[1]][i])
             colordens = float(merged['u_' + color[1]][i])
             entry = np.log10(colornum/colorden)
+            #standard log10(a/b) error 
             unc2 = ((colornums**2)/(colornum*np.log(10))**2)+((colordens**2)/(colorden*np.log(10))**2)
             unentry = np.sqrt(unc2)
             if np.isnan(entry) == False and np.isnan(unentry) == False and i not in excludeidx:
@@ -1080,6 +1045,7 @@ if plttype == 1:
     fig.text(.5, .02, r'$log_{10}$'+f'({colorname})', fontsize=28, ha='center')
     plt.text(-.1, 0.5, 'Number', fontsize=28, rotation='vertical', va='center')
     datarng = get_range(categorized)
+    #plots one histogram plot per category
     for i in range(len(sort[1])):
         title=sort[1][i]
         data= categorized[i]
@@ -1108,9 +1074,9 @@ if plttype == 1:
         print('Uncertainty ' + sort[1][i] + ': ' + str(uncertainty))
     plt.ioff()
     plt.show()
-
-
+#plttype 4 = physical property histogram
 if plttype == 4:
+    #reads the physical property columns from the HCSC table
     hcsccolspecs=[(0,4),(5,9),(10,14),(15,23),(24,35),(36,46),(47,57),(58,64),(65,74),(75,80),(81,85),(86,94),(95,102),(103,109),(110,115),(116,121),(122,129)]
     hcscnames=["ID","DIAM","e_DIAM","MASS","e_MASS","BLUM","e_BLUM","LMRAT","e_LMRAT","TEMP","e_TEMP","LRAT","e_LRAT","TBOL","e_TBOL","SIGMA","e_SIGMA"]
     data_hcsc = pd.read_fwf("MRT-hcsc.txt",colspecs=hcsccolspecs,names=hcscnames, sep=r"\s+", skiprows=28, usecols= physical + ["ID"] + ["e_" + physical[0]])
@@ -1118,10 +1084,9 @@ if plttype == 4:
     distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
     distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
     distdata = pd.read_fwf("MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
-
     sortheaders = [x.replace('Not ','') for x in sort[1] if x != 'All Sources' and x!= 'Neither']
     xmatdata = pd.read_csv("PlotMaster-10fluxes-GWC.csv", usecols=["YB"]+sortheaders)
-
+    #merges physical properties + crossmatch categories + distance + coordinates, all on source ID
     merged2 = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
     merged1 = pd.merge(distdata, merged2, left_on="ID", right_on="ID", how="inner")
     
@@ -1130,9 +1095,12 @@ if plttype == 4:
     corddata = pd.read_fwf("MRT-phot.txt",colspecs=cordcolspecs, names=cordnames, sep=r"\s+", skiprows = 39, usecols=["ID"] + ["GLON"] + ["GLAT"])
     
     merged = pd.merge(corddata, merged1, left_on="ID", right_on="ID", how="inner")
+    #drops rows with non-positive physical property values (can't take log of these)
+    #just a check for faulty data
     merged = merged[merged[physical[0]]>0].reset_index(drop=True)
     print("Before exclusions:", len(merged))
     print("Cutoff:", exclusions[0])
+    #flags rows for exclusion based on checked flags 
     excludeidx= []
     for i in range(len(merged)):
         for j in range(len(flagexlist)):
@@ -1145,6 +1113,7 @@ if plttype == 4:
             excludeidx.append(i)
     excludeidx = list(set(excludeidx))
     merged = merged.drop(index=excludeidx).reset_index(drop=True)
+    #restricts to sources within the chosen l/b/distance window
     if answer == True:
         criteria = ((merged["DIST"] < dismax) & 
                     (merged["DIST"] > dismin) &
@@ -1157,6 +1126,7 @@ if plttype == 4:
         sortheaders.append('Multiple Sources')
         sortheaders.append('Very Circular')
     #Put together a relevant dataframe
+    #most physical properties are plotted in log space
     physical_data = merged[physical[0]]
     if physical[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
         log_physical_data = np.log10(physical_data)
@@ -1166,6 +1136,7 @@ if plttype == 4:
         log_physical_data_tot = physical_data.tolist()
     physun = merged['e_' + physical[0]]
     unentry_list = np.sqrt(physun)
+    #puts sources into each chosen category
     phys_categorized = []
     phys_ercategorized =[]
     for category in sort[1]:
@@ -1207,26 +1178,24 @@ if plttype == 4:
     fig.patch.set_facecolor("White")
     fig.text(.5, .02,f'{physeq}', fontsize=28, ha='center')
     fig.text(.02, 0.5, 'Number', fontsize=28, rotation='vertical', va='center')
+    #"no data" popup if there's nothing left to plot after filtering
     if len(log_physical_data_tot) == 0:
         plt.close(fig)
         excsel2 = plt.figure(figsize=(3,2))
         excsel2.suptitle('No Yellow Balls to Plot')
-
         axes2 = plt.axes([.25,.03,.5,.1])
         contbutton2 = Button(axes2, 'Try Again')
         contbutton2.on_clicked(restart)
-
         global done
         done = False
-
         while not done:
             plt.pause(.1)
         plt.show()
-
     maxval = max(log_physical_data_tot)
     minval = min(log_physical_data_tot)
     datarng = (minval, maxval)
     datarng1 = get_range(phys_categorized)
+    #plots one histogram plot per category
     for i in range(len(sort[1])):
         title = sort[1][i]
         data = phys_categorized[i]
@@ -1239,6 +1208,7 @@ if plttype == 4:
         avephys= round(statistics.mean(data),2)
         stdevphys= round(np.std(data),3)
         binlen = get_binlen(n)
+        #full catalog histogram drawn first as a background reference
         plt.hist(log_physical_data, bins= binlen, range=(datarng), edgecolor="black")
         cnts, bns, ptchs = plt.hist(data, bins= binlen, range=(datarng), edgecolor="black")
         minifig.set_xlim(datarng)
@@ -1254,9 +1224,7 @@ if plttype == 4:
         minifig.vlines(datarng1[0]+uncertainty, .61*y, .69*y, colors='k')
     plt.ioff()
     plt.show()
-
-
-
+#plttype 2 = color-color plot
 elif plttype == 2:
     #Put together a relevant dataframe
     colorx = color[0]
@@ -1267,6 +1235,7 @@ elif plttype == 2:
         sortheaders.append('Multiple Sources')
         sortheaders.append('Very Circular')
     sortheaders = list(set(sortheaders))
+    #builds exclusion columns list
     exclusionheaders = exclusions[1][0]+exclusions[1][1]
     if 'No Obvious Source' in exclusionheaders:
         exclusionheaders.remove('No Obvious Source')
@@ -1284,6 +1253,7 @@ elif plttype == 2:
                            ['e_'+colorx[0],'e_'+colorx[1]]+ colory+['u_'+colory[0],'u_'+colory[1]]+
                            ['e_'+colory[0],'e_'+colory[1]]+sortheaders+exclusionheaders)
     
+    #reads the physical property chosen 
     hcsccolspecs=[(0,4),(5,9),(10,14),(15,23),(24,35),(36,46),(47,57),(58,64),(65,74),(75,80),(81,85),(86,94),(95,102),(103,109),(110,115),(116,121),(122,129)]
     hcscnames=["ID","DIAM","e_DIAM","MASS","e_MASS","BLUM","e_BLUM","LMRAT","e_LMRAT","TEMP","e_TEMP","LRAT","e_LRAT","TBOL","e_TBOL","SIGMA","e_SIGMA"]
     data_hcsc = pd.read_fwf("MRT-hcsc.txt",colspecs=hcsccolspecs,names=hcscnames, sep=r"\s+", skiprows=28, usecols= ["ID"] + physcolorcolor)
@@ -1291,11 +1261,7 @@ elif plttype == 2:
     distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
     distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
     distdata = pd.read_fwf("MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
-    print(data_hcsc["ID"].dtype)
-    print(xmatdata["YB"].dtype)
-
-    print(repr(data_hcsc["ID"].iloc[0]))
-    print(repr(xmatdata["YB"].iloc[0]))
+    #merge key values line up between hcsc and crossmatch tables
     merged2 = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
     merged1 = pd.merge(distdata, merged2, left_on="ID", right_on="ID", how="inner")
     
@@ -1306,6 +1272,7 @@ elif plttype == 2:
     merged = pd.merge(corddata, merged1, left_on="ID", right_on="ID", how="inner")
     
     # Remove Rows based on exclusion parameters
+    #flags rows for exclusion 
     excludeidx = []
     for i in range(len(merged)):
         for j in range(len(exclusionheaders)):
@@ -1318,6 +1285,7 @@ elif plttype == 2:
         if cutoff<max(FEvals) or min(FEvals)<0:
             excludeidx += [i]
     excludeidx = list(set(excludeidx))
+    #restricts to sources within the chosen l/b/distance window
     if answer == True:
         criteria = ((merged["DIST"] < dismax) & 
                     (merged["DIST"] > dismin) &
@@ -1327,11 +1295,13 @@ elif plttype == 2:
                     (merged["GLON"] > lmin))
         merged = merged.loc[criteria].reset_index(drop=True)
         print(len(merged))
+    #log-transforms the physical property used for point coloring 
     if physcolorcolor[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
         log_physcolorcolor = np.log10(merged[physcolorcolor])
     else:
         log_physcolorcolor = merged[physcolorcolor]     
     # Sort into lists based on sorting categories
+    #puts x color, y color, their uncertainties, and the coloring property into each category
     categorizedx = []
     categorizedy = []
     uncategorizedx = []
@@ -1392,10 +1362,10 @@ elif plttype == 2:
         uncategorizedy.append(uncaty)
         catergorizedphyscolor.append(catphyscolor)
     dim = get_dimensions(len(categorizedx))
+    #flattens the per-category lists back into a single dataframe
     catlabel = []
     colordatx = []
     colordaty = []
-
     for i in range(len(categorizedx)):
         for j in range(len(categorizedx[i])):
             catlabel.append(datatitles[i])
@@ -1418,6 +1388,7 @@ elif plttype == 2:
     plt.text(.5, 1.075,'Cutoff: '+cut, fontsize = 20, ha='center', transform=fig.transFigure)
     rangex = get_rangecc(categorizedx)
     rangey = get_rangecc(categorizedy)
+    #plots one color-color scatter plot per category colored by the chosen physical property
     for i in range(len(sort[1])):
         title = datatitles[i]
         data = [categorizedx[i],categorizedy[i]]
@@ -1432,7 +1403,6 @@ elif plttype == 2:
         minifig= fig.add_subplot(dim[1],dim[0],i + 1)
         minifig.set_xlabel("")
         minifig.set_ylabel("")
-        #minifig.set_title(title + f'\nN={n}  ' + r'$\bar{x}=$' + str(avecolor) + '\ns=' + str(stdevcolor), fontsize=20)
         plt.title(title, fontsize=28)
         plt.xlim(rangex[0],rangex[1])
         plt.ylim(rangey[0],rangey[1])
@@ -1440,7 +1410,6 @@ elif plttype == 2:
         minifig.set(xlabel=None, ylabel=None)
         minifig.tick_params(labelsize=20)
         #Ave HII box and cutoffs will only show for F70/F24 vs. F24/F8 plots 
-        #remove conditional and adjust these if you want to plot relevant lines/boxes for other plots
         if colorx == ['F70','F24'] and colory == ['F24','F8']:
             plt.axhline(y=1.0,color='k', linestyle='dashed', label='')
             plt.axvline(x=0.8, color='k', linestyle='dashed', label='')
@@ -1456,8 +1425,6 @@ elif plttype == 2:
         plt.hlines(rangey[0] + rangey[2], (rangex[1] - rangex[2])-uncertaintyx, (rangex[1] - rangex[2])+uncertaintyx, colors='k', linestyles='dotted')
         plt.vlines(rangex[1] - rangex[2], (rangey[0] + rangey[2])-uncertaintyy, (rangey[0] + rangey[2])+uncertaintyy, colors='k', linestyles='dotted')
        # GWC removed 70/24 and 24/8 from the print statements on 11may26.
-       # print('70/24 Uncertainty ' + title + ': '+ str(uncertaintyx))
-       # print('24/8 Uncertainty ' + title + ': '+ str(uncertaintyy))
         print('Uncertaintyx ' + title + ': '+ str(uncertaintyx))
         print('Uncertaintyy ' + title + ': '+ str(uncertaintyy))
     cbar = fig.colorbar(sc, ax=fig.axes, label=physlabel)
@@ -1465,9 +1432,10 @@ elif plttype == 2:
     fig.savefig(fname= save_name, transparent=True)
     plt.ioff()
     plt.show()
-
+#plttype 6 = table (average color per catalog/quartile, saved out as csv)
 elif plttype == 6:
     er_cutoff = .5
+    #pulls in every physical property column
     hcsccolspecs=[(0,4),(5,9),(10,14),(15,23),(24,35),(36,46),(47,57),(58,64),(65,74),(75,80),(81,85),(86,94),(95,102),(103,109),(110,115),(116,121),(122,129)]
     hcscnames=["ID","DIAM","e_DIAM","MASS","e_MASS","BLUM","e_BLUM","LMRAT","e_LMRAT","TEMP","e_TEMP","LRAT","e_LRAT","TBOL","e_TBOL","SIGMA","e_SIGMA"]
     data_hcsc = pd.read_fwf("MRT-hcsc.txt",colspecs=hcsccolspecs,names=hcscnames, sep=r"\s+", skiprows=28)
@@ -1475,11 +1443,10 @@ elif plttype == 6:
     distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
     distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
     distdata = pd.read_fwf("MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
-
     cordcolspecs=[(0,4),(5,14),(15,23),(24,31),(32,39),(40,47),(48,55),(56,60),(60,68),(69,77),(78,85),(86,94),(95,102),(103,110),(111,120),(121,130),(131,133),(134,136),(137,139),(140,141),(142,146),(147,148),(149,153),(154,158),(159,160)]
     cordnames=["ID","GLON","GLAT","MWPR","e_GLON","e_GLAT","e_MWPR","HRATE","F8","e_F8","F12","e_F12","F24","e_F24","F70","e_F70","N8","N12","N24","N70","f_SAT","f_MULTI","f_NOSRC","f_PCONF","f_CEXT"]
     corddata = pd.read_fwf("MRT-phot.txt",colspecs=cordcolspecs, names=cordnames, sep=r"\s+", skiprows = 39, usecols=["ID"] + ["GLON"] + ["GLAT"] + ["F8"]+["e_F8"]+["F12"]+["e_F12"]+["F24"]+["e_F24"]+["F70"]+["e_F70"])
-
+    #pulls the full flux/uncertainty set plus every flag/crossmatch column needed for filtering
     xmatdata = pd.read_csv("PlotMaster-10fluxes-GWC.csv", usecols= [
     "YB",
     "F160", "u_F160", "e_F160",
@@ -1520,9 +1487,9 @@ elif plttype == 6:
     merged2 = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
     merged1 = pd.merge(distdata, merged2, left_on="ID", right_on="ID", how="inner")
     merged = pd.merge(corddata, merged1, left_on="ID", right_on="YB", how="inner")
-    #print("25 in xmatdata:", (xmatdata["YB"] == 25).any())
     tot_table = []
     excludeidx = []
+    #flag-only exclusion set for the table
     exclusions = [er_cutoff, ["No Obvious Source", "Poor Confidence"]]
     for i in range(len(merged)):
         for j in range(len(exclusions[1])):
@@ -1533,8 +1500,10 @@ elif plttype == 6:
     excludeidx = list(set(excludeidx))
     merged = merged.drop(index=excludeidx).reset_index(drop=True)
     table_cat = table_cat[0]
+    #restricts to a single catalog 
     if table_cat != "All Sources":
         merged = merged[merged[table_cat]==1].reset_index(drop=True)
+    #restricts to sources within the chosen l/b/distance window
     if answer == True:
         criteria = ((merged["DIST"] < dismax) & 
                     (merged["DIST"] > dismin) &
@@ -1543,17 +1512,18 @@ elif plttype == 6:
                     (merged["GLON"] < lmax) &
                     (merged["GLON"] > lmin))
         merged = merged.loc[criteria].reset_index(drop=True) 
+    #sorts by physical property so the table can later be sliced into quartiles
     if physanswer == True:
         merged = merged.sort_values(by=physical[0], ascending=False).reset_index(drop=True)             
+    #computes the average color ratio for every color pair
     for color in colorsep:
-    #    HII_lst = []
-    #    PNe_lst = []
+
         table_lst = []
         for i in range(len(merged)):
             colorx = merged[color[0]].iloc[i]
             colory = merged[color[1]].iloc[i]
             color_tot = colorx / colory
-           # print(merged["YB"].iloc[i], color,color_tot, (merged["e_"+color[0]].iloc[i]+merged["e_"+color[1]].iloc[i]) / 2)
+            #only keeps values where both bands have acceptable error longer wavelength bands have no error cut
             if color[0] in ["F8","F12","F24","F70"] and color[1] in ["F8","F12","F24","F70"]:
                 if merged["e_"+color[0]].iloc[i] < .5 and merged["e_"+color[1]].iloc[i] < .5:
                     table_lst.append(color_tot) 
@@ -1567,6 +1537,7 @@ elif plttype == 6:
             else: 
                 table_lst.append(color_tot)
         table_lst = [x for x in table_lst if not pd.isna(x)]
+        #slices the list down to the chosen quartile
         if physanswer == True:
             quarter = len(table_lst) // 4
             half = len(table_lst) // 2
@@ -1585,29 +1556,7 @@ elif plttype == 6:
         stdevtab = round(np.std(table_lst),3)
         log_color_ave = round(np.log10(color_ave), 3)
         log_stdevtab = round(np.log10(stdevtab), 3)
-        #    if sign == ">":
-        #        if color_tot > cutoff:
-        #           HII_lst.append(color_tot)
-         #       else:
-         #           PNe_lst.append(color_tot)
-         #   elif sign == "<":
-         #       if color_tot < cutoff:
-        #            HII_lst.append(color_tot)
-        #        else:
-         #           PNe_lst.append(color_tot)
-       # HII_lst = [x for x in HII_lst if not pd.isna(x)]
-       # PNe_lst = [x for x in PNe_lst if not pd.isna(x)]
-      #  HII_per = round(100*len(HII_lst) / len(merged), 1)
-      #  PNe_per = round(100*len(PNe_lst) // len(merged), 1)
-      #  if len(HII_lst) > 0:
-      #      HII_ave = round(statistics.mean(HII_lst),2)
-      #  else:
-      #      HII_ave = "No Value"
-      #  if len(PNe_lst) > 0:
-            
-      #      PNe_ave = round(statistics.mean(PNe_lst),2)
-      #  else:
-      #      PNe_ave = "No Value"
+
         if table_cat == "WISE C,G,K":
             table_cat = table_cat.replace(",","")
         com_string = f"{table_cat},{color[0]}/{color[1]},{log_color_ave}\u00B1{log_stdevtab}, {len(table_lst)}, {quar_title}"
@@ -1616,23 +1565,26 @@ elif plttype == 6:
         "Catalog,Color,log(Avg Color),N Sources,Quartile"]
     connect = np.concatenate((header, tot_table))
     table_cat_title = table_cat_title[0]
+    #cleans up the physical property title for use in a filename 
     if physanswer == True:
         if phys_title == "Bolometric Luminosity/Mass":
             phys_title = phys_title.replace("/","_")
+    #saves table csv, filename includes the physical property title only if quartile filtering was used
     if physanswer == False:
         #change do your directory
         np.savetxt(f"/Users/wadevining/YellowBall/Tables/{table_cat_title}{quar_title}.csv", connect, fmt="%s") 
     else:
         np.savetxt(f"/Users/wadevining/YellowBall/Tables/{table_cat_title}{quar_title}{phys_title}.csv", connect, fmt="%s")    
-
+#plttype 7 = scatter plot, reads back in the tables built by plttype 6 to plot them
 elif plttype == 7:
+    #tables broken out by catalog 
     catdata_all = pd.read_csv("Tables/all_sources100%.csv", header = [0])
     catdata_RMS = pd.read_csv("Tables/RMS100%.csv", header = [0])
     catdata_WISECGK = pd.read_csv("Tables/WISE_C,G,K100%.csv", header = [0])
     catdata_WISEQ = pd.read_csv("Tables/WISE Q100%.csv", header = [0])
     catdata_CORNISH = pd.read_csv("Tables/CORNISH100%.csv", header = [0])
     catdata_noasso = pd.read_csv("Tables/no_association100%.csv", header = [0])
-
+    #tables broken out by physical property quartile, one set of 4 files per property
     BLM_quar_25 = pd.read_csv("Tables/all_sources0-25%Bolometric Luminosity_Mass.csv", header = [0])
     BL_quar_25 = pd.read_csv("Tables/all_sources0-25%Bolometric Luminosity.csv", header = [0])
     BT_quar_25 = pd.read_csv("Tables/all_sources0-25%Bolometric Temperature.csv", header = [0])
@@ -1668,7 +1620,7 @@ elif plttype == 7:
     LR_quar_100 = pd.read_csv("Tables/all_sources75-100%Luminosity Ratio.csv", header=[0])
     MA_quar_100 = pd.read_csv("Tables/all_sources75-100%Mass.csv", header=[0])
     SD_quar_100 = pd.read_csv("Tables/all_sources75-100%Surface Density.csv", header=[0])
-
+    #groups each property's 4 quartile tables into a single list
     BLM_quar = [BLM_quar_25, BLM_quar_50, BLM_quar_75, BLM_quar_100]
     BL_quar = [BL_quar_25, BL_quar_50, BL_quar_75, BL_quar_100]
     BT_quar = [BT_quar_25, BT_quar_50, BT_quar_75, BT_quar_100]
@@ -1677,6 +1629,7 @@ elif plttype == 7:
     LR_quar = [LR_quar_25, LR_quar_50, LR_quar_75, LR_quar_100]
     MA_quar = [MA_quar_25, MA_quar_50, MA_quar_75, MA_quar_100]
     SD_quar = [SD_quar_25, SD_quar_50, SD_quar_75, SD_quar_100]
+    #map so histphysicalfunc_tab's short column names (LR_quar, etc) map back to the right quartile table set
     data_map = {
                 "LR_quar": LR_quar,
                 "BL_quar": BL_quar,
@@ -1690,6 +1643,7 @@ elif plttype == 7:
     
     catdata = [catdata_all,catdata_RMS,catdata_WISECGK,catdata_WISEQ,catdata_CORNISH, catdata_noasso]
     
+    #scatopt 1 = plot avg color per catalog, one point per color/catalog pair
     if scatopt == 1:
         yax_lst = []
         xax= []
@@ -1699,14 +1653,15 @@ elif plttype == 7:
             yax_lst.extend(csv["log(Avg Color)"].tolist())
             xax.extend(csv["Color"].tolist())
             colorax.extend(csv["Catalog"].tolist())
+        #strips off the +/- uncertainty part of the string, keeping just the value
         for num in yax_lst:
             yax.append(float(num.split("\u00B1")[0]))
         unique = sorted(set(colorax))
+        #assigns each catalog a distinct color from the colormap
         color_map = {
             name: plt.cm.tab20(i / len(unique))
             for i, name in enumerate(unique)
         }
-
         point_colors = [color_map[name] for name in colorax]
         fig, minifig = plt.subplots(figsize=(10,7))
         sc = minifig.scatter(xax,yax,c=point_colors,s=10)
@@ -1717,13 +1672,13 @@ elif plttype == 7:
         plt.subplots_adjust(bottom=.25)
         plt.ioff()
         plt.show()
+        '''
     elif scatopt == 2:
     
         yax_lst = []
         xax= []
         yax = []
         colorax = []
-
         for csv in data_map[physical[0]]:
             yax_lst.extend(csv["log(Avg Color)"].tolist())
             xax.extend(csv["Quartile"].tolist())
@@ -1735,7 +1690,6 @@ elif plttype == 7:
             name: plt.cm.tab20(i / len(unique))
             for i, name in enumerate(unique)
         }
-
         point_colors = [color_map[name] for name in colorax]
         fig, minifig = plt.subplots(figsize=(10,7))
         sc = minifig.scatter(xax,yax,c=point_colors,s=10)
@@ -1745,7 +1699,8 @@ elif plttype == 7:
         plt.subplots_adjust(right=.75)
         plt.ioff()
         plt.show()
-    
+        '''
+    #scatopt 3 = plot avg color per catalog, sorted by st dev across catalogs 
     elif scatopt == 3:
         yax_lst = []
         xax = []
@@ -1762,16 +1717,16 @@ elif plttype == 7:
                     yax_lst.append(row["log(Avg Color)"])
                     catax.append(row["Catalog"])
                     catalog_color_vals.setdefault(row["Color"], {})[row["Catalog"]] = val
-        print(catalog_color_vals)
         for num in yax_lst:
             split = num.split("\u00B1")
             yax.append(float(split[0]))
-        print(sorted(set(catax)))
+        #stdev of a color's value across catalogs, used to rank colors by how much they vary between catalogs
         color_stdev = {
             color: np.std(list(cat_vals.values()))
             for color, cat_vals in catalog_color_vals.items()
                 }
         color_order = sorted(color_stdev, key=color_stdev.get, reverse=True)
+        #marker shape per catalog
         color_map = {
             "All Sources": "o",
             "RMS": "s",
@@ -1780,17 +1735,15 @@ elif plttype == 7:
             "CORNISH": "x",
             "No Association": "d"
         }
-
         point_colors = [color_map[name] for name in catax]
         xax = np.array(xax)
         yax = np.array(yax)
         catax = np.array(catax)
-
         order_index = {c: i for i, c in enumerate(color_order)}
         y_positions = np.array([order_index[c] for c in xax])
-
         fig, minifig = plt.subplots(figsize=(10,7))
         minifig.set_title("Colors in Catalogs", fontsize=20)
+        #plots one scatter per catalog 
         for name, marker in color_map.items():
             mask = catax == name
             if mask.any():
@@ -1805,6 +1758,7 @@ elif plttype == 7:
         plt.ioff()
         plt.show()
     
+    #scatopt 4 = plot avg color per quartile of the chosen physical property
     elif scatopt == 4:
         yax_lst = []
         xax= []
@@ -1816,21 +1770,17 @@ elif plttype == 7:
             catax.extend(csv["Quartile"].tolist())
         for num in yax_lst:
             yax.append(float(num.split("\u00B1")[0]))
-        print(sorted(set(catax)))
         color_map = {
             " 0-25%": "red",
             " 25-50%": "green",
             " 50-75%" : "black",
             " 75-100%": "blue",
         }
-
         point_colors = [color_map[name] for name in catax]
-
         fig, minifig = plt.subplots(figsize=(14,7))
         sc = minifig.scatter(xax,yax,c=point_colors,s=10)
         plt.title(phys_title)
         plt.xticks(rotation=90, fontsize=15)
-
         '''
         target = {" 0-25%"," 75-100%"}
         filtered = [(c,v,q) for c,v,q in zip(xax,yax,catax) if q in target]
@@ -1849,7 +1799,6 @@ elif plttype == 7:
         for rank,(color,diff,avg_low,avg_high) in enumerate(diffs_sorted,start=1):
             print(f"{color:<25}")
         '''
-
         legend_elements = [Line2D([0],[0],marker='o',color='w',label=name,markerfacecolor=color_map[name],markersize=6)for name in sorted(set(catax))]
         minifig.legend(handles=legend_elements,title="Color",loc="center left",bbox_to_anchor=(1.02, 0.5),fontsize=10,title_fontsize=12,ncol=1)
         plt.subplots_adjust(right=.75, bottom=.20)
