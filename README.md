@@ -28,3 +28,5 @@ The physical histogram is overplotted on all sources but both follow the same pa
 Tables can be created to display numerical data through catalogs and quartiles
 
 Plots that show the variation through catalogs can be created as well as the spread in quartile through physcial properties
+
+Now has 3d plot option that can have colors or physical properties as axis with physical property as color bar
