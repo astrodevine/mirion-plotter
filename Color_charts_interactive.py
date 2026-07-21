@@ -90,6 +90,12 @@ def make_colorcolor(event):
     plt.close()
     plttype = 2
     return plttype
+
+def threed_scatter(event):
+    global plttype
+    plt.close()
+    plttype = 8
+    return plttype
 #sets plot type to include distance filtering
 def includedistacne(event):
     global plttype
@@ -97,6 +103,8 @@ def includedistacne(event):
     plttype = 5
     return plttype
 #popup to pick physical property and quartile for the table's physical filter
+
+
 def select_table_physical():
     global physical
     global physeq
@@ -330,6 +338,54 @@ def select_properties(plttype):
         while done==False:
             plt.pause(.1)
         return physical
+    if plttype == 8:
+        global tripprop
+        global triptitle
+        tripprop = [['F1100','F870'],['F1100','F870'],['F1100','F870']]
+        triptitle =["","",""]
+        # colorsel = plt.figure(figsize= (6,4))
+        colorsel = plt.figure(figsize= (9,9))
+        # colorsel.suptitle('Select Colors', fontsize = 15)
+        colorsel.suptitle('Select Color or Physical Properties', fontsize = 10)
+        # axesx = plt.axes([.1,.3,.4,.5])
+        axesx = plt.axes([.025,.185,.3,.74])
+        # axesx.set_title('x-axis color',fontsize = 15, loc = 'left')
+        axesx.set_title('x-axis color',fontsize = 10, loc = 'left')
+        # radio_ccx= RadioButtons(axesx, coloroptions, label_props={'fontsize':[15]*len(coloroptions)},
+                                 # radio_props={'s':[64]*len(coloroptions)})
+        radio_ccx= RadioButtons(axesx, tripoptions, label_props={'fontsize':[10]*len(tripoptions)},
+                                 radio_props={'s':[64]*len(tripoptions)})
+        radio_ccx.on_clicked(tripfuncx)
+        # axesy = plt.axes([.5,.3,.4,.5])
+        
+        axesy = plt.axes([.35,.185,.3,.74])
+        # axesy.set_title('y-axis color', fontsize = 15, loc='left')
+        axesy.set_title('y-axis color', fontsize = 10, loc='left')
+        # radio_ccy= RadioButtons(axesy, coloroptions, label_props={'fontsize':[15]*len(coloroptions)},
+                                 # radio_props={'s':[64]*len(coloroptions)})
+        radio_ccy= RadioButtons(axesy, tripoptions, label_props={'fontsize':[10]*len(tripoptions)},
+                                 radio_props={'s':[64]*len(tripoptions)})
+        radio_ccy.on_clicked(tripfuncy)
+
+        axesz = plt.axes([.675,.185,.3,.74])
+        # axesy.set_title('y-axis color', fontsize = 15, loc='left')
+        axesz.set_title('z-axis color', fontsize = 10, loc='left')
+        # radio_ccy= RadioButtons(axesy, coloroptions, label_props={'fontsize':[15]*len(coloroptions)},
+                                 # radio_props={'s':[64]*len(coloroptions)})
+        radio_ccz= RadioButtons(axesz, tripoptions, label_props={'fontsize':[10]*len(tripoptions)},
+                                 radio_props={'s':[64]*len(tripoptions)})
+        radio_ccz.on_clicked(tripfuncz)
+
+
+        axes2 = plt.axes([.1,.1,.8,.075])
+        contbutton = Button(axes2, 'Continue')
+        contbutton.on_clicked(close)
+        plt.show()
+        done = False
+        while done==False:
+            plt.pause(.1)
+        return tripprop
+
 #popup asking whether to filter table by physical property quartile
 def physquestion():
     global physanswer
@@ -422,6 +478,8 @@ def actdistance():
         plt.pause(.1)
     plt.show()
     return
+
+
 
 # GWC adds 160 um on 5/8/26. Added all longer-wavelength fluxes on 5/12/26.
 #maps the label picked in the color radio buttons to the actual flux column pair
@@ -537,6 +595,128 @@ def colorfuncy(label):
     color = colordict[label]
     colorcolor[1]=color
     return colorcolor
+
+def tripfuncx(label):
+    global tripprop
+    colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
+                '1100/250': ['F1100','F250'], '1100/160': ['F1100','F160'], '1100/70': ['F1100','F70'],
+                '1100/24': ['F1100','F24'], '1100/12': ['F1100','F12'], '1100/8': ['F1100','F8'],
+                '870/500': ['F870','F500'], '870/350': ['F870','F350'],
+                '870/250': ['F870','F250'], '870/160': ['F870','F160'], '870/70': ['F870','F70'],
+                '870/24': ['F870','F24'], '870/12': ['F870','F12'], '870/8': ['F870','F8'],
+                '500/350': ['F500','F350'],'500/250': ['F500','F250'], '500/160': ['F500','F160'], 
+                '500/70': ['F500','F70'],'500/24': ['F500','F24'], '500/12': ['F500','F12'], 
+                '500/8': ['F500','F8'], '350/250': ['F350','F250'], '350/160': ['F350','F160'], 
+                '350/70': ['F350','F70'],'350/24': ['F350','F24'], '350/12': ['F350','F12'], 
+                '350/8': ['F350','F8'], '250/160': ['F250','F160'], '250/70': ['F250','F70'], 
+                '250/24': ['F250','F24'], '250/12': ['F250','F12'], '250/8': ['F250','F8'],
+                '160/70': ['F160','F70'], '160/24': ['F160','F24'], '160/12': ['F160','F12'], 
+                '160/8': ['F160','F8'],'70/24': ['F70','F24'], '70/12': ['F70','F12'],
+                '70/8': ['F70','F8'],'24/12': ['F24','F12'],'24/8': ['F24','F8'],'12/8': ['F12','F8'],
+                "Luminosity Ratio": ['LRAT'], 
+                "Bolometric Temperature": ['TBOL'],
+                "Surface Density": ['SIGMA'],
+                "Greybody Temperature": ['TEMP'],
+                "Mass": ["MASS"],
+                "Bolometric Luminosity": ["BLUM"],
+                "Diameter": ["DIAM"],
+                "Bolometric Luminosity/Mass": ["LMRAT"]}
+    physicalform = {"Luminosity Ratio": r"Luminosity Ratio [$\log_{10}(L/L_{\mathrm{ssm}})$]",
+                    "Bolometric Temperature": r"Bolometric Temperature [$T_{\mathrm{bol}}/\mathrm{K}$]",
+                    "Surface Density": r"Surface Density [$\log_{10}(\sum/\mathrm{g\,cm^{-3}})$]",
+                    "Greybody Temperature": r"Greybody Temperature [$T_{\mathrm{g}}/\mathrm{K}$]",
+                    "Mass": r"Mass [$\log_{10}(M/M_\odot)$]",
+                    "Bolometric Luminosity": r"Bolometric Luminosity [$\log_{10}(L/L_\odot)$]",
+                    "Diameter": r"Diameter [$\log_{10}(D/\mathrm{pc})$]",
+                    "Bolometric Luminosity/Mass": r"Bolometric Luminosity/Mass [$\log_{10}(L/L_\odot \,/\, M/M_\odot)$]"}
+    if label in physical_options:
+        titlex = physicalform[label]
+        triptitle[0] = titlex
+    color = colordict[label]
+    tripprop[0]=color
+    return tripprop, triptitle
+
+def tripfuncy(label):
+    global tripprop
+    global triptitle
+    colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
+                 '1100/250': ['F1100','F250'], '1100/160': ['F1100','F160'], '1100/70': ['F1100','F70'],
+                 '1100/24': ['F1100','F24'], '1100/12': ['F1100','F12'], '1100/8': ['F1100','F8'],
+                 '870/500': ['F870','F500'], '870/350': ['F870','F350'],
+                 '870/250': ['F870','F250'], '870/160': ['F870','F160'], '870/70': ['F870','F70'],
+                 '870/24': ['F870','F24'], '870/12': ['F870','F12'], '870/8': ['F870','F8'],
+                 '500/350': ['F500','F350'],'500/250': ['F500','F250'], '500/160': ['F500','F160'], 
+                 '500/70': ['F500','F70'],'500/24': ['F500','F24'], '500/12': ['F500','F12'], 
+                 '500/8': ['F500','F8'], '350/250': ['F350','F250'], '350/160': ['F350','F160'], 
+                 '350/70': ['F350','F70'],'350/24': ['F350','F24'], '350/12': ['F350','F12'], 
+                 '350/8': ['F350','F8'], '250/160': ['F250','F160'], '250/70': ['F250','F70'], 
+                 '250/24': ['F250','F24'], '250/12': ['F250','F12'], '250/8': ['F250','F8'],
+                 '160/70': ['F160','F70'], '160/24': ['F160','F24'], '160/12': ['F160','F12'], 
+                 '160/8': ['F160','F8'],'70/24': ['F70','F24'], '70/12': ['F70','F12'],
+                 '70/8': ['F70','F8'],'24/12': ['F24','F12'],'24/8': ['F24','F8'],'12/8': ['F12','F8'],
+                 "Luminosity Ratio": ['LRAT'], 
+                 "Bolometric Temperature": ['TBOL'],
+                 "Surface Density": ['SIGMA'],
+                 "Greybody Temperature": ['TEMP'],
+                 "Mass": ["MASS"],
+                 "Bolometric Luminosity": ["BLUM"],
+                 "Diameter": ["DIAM"],
+                 "Bolometric Luminosity/Mass": ["LMRAT"]}
+    physicalform = {"Luminosity Ratio": r"Luminosity Ratio [$\log_{10}(L/L_{\mathrm{ssm}})$]",
+                    "Bolometric Temperature": r"Bolometric Temperature [$T_{\mathrm{bol}}/\mathrm{K}$]",
+                    "Surface Density": r"Surface Density [$\log_{10}(\sum/\mathrm{g\,cm^{-3}})$]",
+                    "Greybody Temperature": r"Greybody Temperature [$T_{\mathrm{g}}/\mathrm{K}$]",
+                    "Mass": r"Mass [$\log_{10}(M/M_\odot)$]",
+                    "Bolometric Luminosity": r"Bolometric Luminosity [$\log_{10}(L/L_\odot)$]",
+                    "Diameter": r"Diameter [$\log_{10}(D/\mathrm{pc})$]",
+                    "Bolometric Luminosity/Mass": r"Bolometric Luminosity/Mass [$\log_{10}(L/L_\odot \,/\, M/M_\odot)$]"}
+    if label in physical_options:
+        titley = physicalform[label]
+        triptitle[1] = titley
+    color = colordict[label]
+    tripprop[1]=color
+    return tripprop, triptitle
+
+def tripfuncz(label):
+    global tripprop
+    global triptitle
+    colordict = {'1100/870': ['F1100','F870'], '1100/500': ['F1100','F500'], '1100/350': ['F1100','F350'],
+                 '1100/250': ['F1100','F250'], '1100/160': ['F1100','F160'], '1100/70': ['F1100','F70'],
+                 '1100/24': ['F1100','F24'], '1100/12': ['F1100','F12'], '1100/8': ['F1100','F8'],
+                 '870/500': ['F870','F500'], '870/350': ['F870','F350'],
+                 '870/250': ['F870','F250'], '870/160': ['F870','F160'], '870/70': ['F870','F70'],
+                 '870/24': ['F870','F24'], '870/12': ['F870','F12'], '870/8': ['F870','F8'],
+                 '500/350': ['F500','F350'],'500/250': ['F500','F250'], '500/160': ['F500','F160'], 
+                 '500/70': ['F500','F70'],'500/24': ['F500','F24'], '500/12': ['F500','F12'], 
+                 '500/8': ['F500','F8'], '350/250': ['F350','F250'], '350/160': ['F350','F160'], 
+                 '350/70': ['F350','F70'],'350/24': ['F350','F24'], '350/12': ['F350','F12'], 
+                 '350/8': ['F350','F8'], '250/160': ['F250','F160'], '250/70': ['F250','F70'], 
+                 '250/24': ['F250','F24'], '250/12': ['F250','F12'], '250/8': ['F250','F8'],
+                 '160/70': ['F160','F70'], '160/24': ['F160','F24'], '160/12': ['F160','F12'], 
+                 '160/8': ['F160','F8'],'70/24': ['F70','F24'], '70/12': ['F70','F12'],
+                 '70/8': ['F70','F8'],'24/12': ['F24','F12'],'24/8': ['F24','F8'],'12/8': ['F12','F8'],
+                 "Luminosity Ratio": ['LRAT'], 
+                 "Bolometric Temperature": ['TBOL'],
+                 "Surface Density": ['SIGMA'],
+                 "Greybody Temperature": ['TEMP'],
+                 "Mass": ["MASS"],
+                 "Bolometric Luminosity": ["BLUM"],
+                 "Diameter": ["DIAM"],
+                 "Bolometric Luminosity/Mass": ["LMRAT"]}
+    physicalform = {"Luminosity Ratio": r"Luminosity Ratio [$\log_{10}(L/L_{\mathrm{ssm}})$]",
+                    "Bolometric Temperature": r"Bolometric Temperature [$T_{\mathrm{bol}}/\mathrm{K}$]",
+                    "Surface Density": r"Surface Density [$\log_{10}(\sum/\mathrm{g\,cm^{-3}})$]",
+                    "Greybody Temperature": r"Greybody Temperature [$T_{\mathrm{g}}/\mathrm{K}$]",
+                    "Mass": r"Mass [$\log_{10}(M/M_\odot)$]",
+                    "Bolometric Luminosity": r"Bolometric Luminosity [$\log_{10}(L/L_\odot)$]",
+                    "Diameter": r"Diameter [$\log_{10}(D/\mathrm{pc})$]",
+                    "Bolometric Luminosity/Mass": r"Bolometric Luminosity/Mass [$\log_{10}(L/L_\odot \,/\, M/M_\odot)$]"}
+    if label in physical_options:
+        titlez = physicalform[label]
+        triptitle[2] = titlez
+    color = colordict[label]
+    tripprop[2]=color
+    return tripprop, triptitle
 #maps physical property radio choice to its column name
 def physicalswitch(label): 
     global physcolorcolor
@@ -771,6 +951,14 @@ def get_dimensions(n):
     dimensions = [x,y]
     return dimensions
 
+def get_dimensions_3d(n):
+    root = n ** (1/3)
+    x = math.ceil(root)
+    y = math.ceil(root)
+    z = math.ceil(n / (x*y))
+    dimensions = [x,y,z]
+    return dimensions
+
 #handles the empty-data case by popping a "no yellow balls" message and letting the user restart
 def get_range(datacol):
     longest_list = max(datacol, key=len)
@@ -816,19 +1004,22 @@ def get_rangecc(datacol):
 #Step 1: Choose to generate either a histogram or color-color plot
 startup = plt.figure(figsize= (5,3))
 startup.suptitle('Select Plot Type', fontsize = 18, y = .95)
-hist_axes = plt.axes([.15,.65,.7,.15])
+hist_axes = plt.axes([.15,.75,.7,.15])
 histbutton = Button(hist_axes, 'Histogram', )
 histbutton.on_clicked(make_histograms)
-cc_axes = plt.axes([.15,.45,.7,.15])
+cc_axes = plt.axes([.15,.58,.7,.15])
 ccbutton = Button(cc_axes, 'Color-Color Plot')
 ccbutton.on_clicked(make_colorcolor)
-table_axes = plt.axes([.15,.25,.7,.15])
+table_axes = plt.axes([.15,.41,.7,.15])
 tablebutton = Button(table_axes, 'Create Table')
 tablebutton.on_clicked(make_table1)
-cc_axes2 = plt.axes([.15,.05,.7,.15])
+cc_axes2 = plt.axes([.15,.24,.7,.15])
 ccbutton2 = Button(cc_axes2, 'Scatter Plot')
 ccbutton2.on_clicked(table_scatter)
-plttype= 0
+cc_axes4 = plt.axes([.15,.07,.7,.15])
+ccbutton4 = Button(cc_axes4, '3d Plot')
+ccbutton4.on_clicked(threed_scatter)
+plttype = 0
 plt.show()
 while plttype==0:
     plt.pause(0.1)
@@ -848,6 +1039,29 @@ coloroptions = ['1100/870','1100/500','1100/350','1100/250','1100/160','1100/70'
                 '350/250','350/160','350/70','350/24','350/12','350/8','250/160','250/70',
                 '250/24','250/12','250/8',
                 '160/70','160/24','160/12','160/8','70/24','70/12','70/8','24/12','24/8','12/8']
+
+tripoptions = ['1100/870','1100/500','1100/350','1100/250','1100/160','1100/70','1100/24',
+                '1100/12','1100/8','870/500','870/350','870/250','870/160','870/70','870/24',
+                '870/12','870/8','500/350','500/250','500/160','500/70','500/24','500/12','500/8',
+                '350/250','350/160','350/70','350/24','350/12','350/8','250/160','250/70',
+                '250/24','250/12','250/8',
+                '160/70','160/24','160/12','160/8','70/24','70/12','70/8','24/12','24/8','12/8',"Luminosity Ratio", 
+                "Bolometric Temperature",
+                "Surface Density",
+                "Greybody Temperature",
+                "Mass",
+                "Bolometric Luminosity",
+                "Diameter",
+                "Bolometric Luminosity/Mass"]
+physicalsep = [['LRAT'], 
+                    ['TBOL'],
+                    ['SIGMA'],
+                    ['TEMP'],
+                    ["MASS"],
+                    ["BLUM"],
+                    ["DIAM"],
+                    ["LMRAT"]]
+
 #same pairs as coloroptions but as actual flux column name lists
 colorsep = [['F1100','F870'], ['F1100','F500'], ['F1100','F350'],
                 ['F1100','F250'], ['F1100','F160'], ['F1100','F70'],
@@ -917,7 +1131,7 @@ else:
         colordict = {'All Sources': 'green', 'RMS': 'red', 'WISE C,G,K':'orange', 'WISE Q': 'blue',
                     'CORNISH':'purple', 'No Association':'gray', 'Multiple Sources': 'red', 'Very Circular':'orange', 
                     'Not Multiple Sources': 'blue','Not Very Circular':'purple', 'Neither':'gray'}
-    if plttype == 2 :
+    if plttype == 2 or plttype == 8:
         physoption = ["Luminosity Ratio", 
                         "Bolometric Temperature",
                         "Surface Density",
@@ -1804,3 +2018,345 @@ elif plttype == 7:
         plt.subplots_adjust(right=.75, bottom=.20)
         plt.ioff()
         plt.show()
+
+elif plttype == 8:
+    #Put together a relevant dataframe
+    tripx = tripprop[0]
+    tripy = tripprop[1]
+    tripz = tripprop[2]
+    datatitles = sort[1]
+    sortheaders = [x.replace('Not ','') for x in datatitles if x != 'All Sources' and x!= 'Neither']
+    if 'Neither' in datatitles:
+        sortheaders.append('Multiple Sources')
+        sortheaders.append('Very Circular')
+    sortheaders = list(set(sortheaders))
+    #builds exclusion columns list
+    exclusionheaders = exclusions[1][0]+exclusions[1][1]
+    collect = []
+    if tripx in colorsep:
+        if 'No Obvious Source' in exclusionheaders:
+            exclusionheaders.remove('No Obvious Source')
+            exclusionheaders += ['No Obvious Source ' + tripx[0].replace('F',''), 
+                                'No Obvious Source ' + tripx[1].replace('F','')]
+        if 'Poor Confidence' in exclusionheaders:
+            exclusionheaders.remove('Poor Confidence')
+            exclusionheaders += ['Poor Confidence ' + tripx[0].replace('F',''), 
+                                'Poor Confidence ' + tripx[1].replace('F','')]
+        collect += tripx+['u_'+tripx[0],'u_'+tripx[1]]+['e_'+tripx[0],'e_'+tripx[1]]
+    if tripy in colorsep:
+        if 'No Obvious Source' in exclusionheaders:
+            exclusionheaders.remove('No Obvious Source')
+            exclusionheaders += ['No Obvious Source ' + tripy[0].replace('F',''), 
+                                'No Obvious Source ' + tripy[1].replace('F','')]
+        if 'Poor Confidence' in exclusionheaders:
+            exclusionheaders.remove('Poor Confidence')
+            exclusionheaders += ['Poor Confidence ' + tripy[0].replace('F',''), 
+                                'Poor Confidence ' + tripy[1].replace('F','')]
+        collect += tripy+['u_'+tripy[0],'u_'+tripy[1]]+['e_'+tripy[0],'e_'+tripy[1]]
+    if tripz in colorsep:
+        if 'No Obvious Source' in exclusionheaders:
+            exclusionheaders.remove('No Obvious Source')
+            exclusionheaders += ['No Obvious Source ' + tripz[0].replace('F',''), 
+                                'No Obvious Source ' + tripz[1].replace('F','')]
+        if 'Poor Confidence' in exclusionheaders:
+            exclusionheaders.remove('Poor Confidence')
+            exclusionheaders += ['Poor Confidence ' + tripz[0].replace('F',''), 
+                                'Poor Confidence ' + tripz[1].replace('F','')]
+        collect += tripz+['u_'+tripz[0],'u_'+tripz[1]]+['e_'+tripz[0],'e_'+tripz[1]]
+    print("Headers:", exclusionheaders)
+
+    if tripx in physicalsep and tripy in physicalsep and tripz in physicalsep:
+        xmatdata = pd.read_csv(catalog_name, usecols=['YB']+collect+sortheaders)
+    else:
+        xmatdata = pd.read_csv(catalog_name, usecols=['YB']+collect+sortheaders+exclusionheaders)
+    physpull = []
+    if tripx in physicalsep:
+        physpull += tripx+['e_'+tripx[0]]
+    if tripy in physicalsep:
+        physpull += tripy+['e_'+tripy[0]]
+    if tripz in physicalsep:
+        physpull += tripz+['e_'+tripz[0]]
+        
+    #reads the physical property chosen 
+    hcsccolspecs=[(0,4),(5,9),(10,14),(15,23),(24,35),(36,46),(47,57),(58,64),(65,74),(75,80),(81,85),(86,94),(95,102),(103,109),(110,115),(116,121),(122,129)]
+    hcscnames=["ID","DIAM","e_DIAM","MASS","e_MASS","BLUM","e_BLUM","LMRAT","e_LMRAT","TEMP","e_TEMP","LRAT","e_LRAT","TBOL","e_TBOL","SIGMA","e_SIGMA"]
+    data_hcsc = pd.read_fwf("MRT-hcsc.txt",colspecs=hcsccolspecs,names=hcscnames, sep=r"\s+", skiprows=28, usecols= ["ID"] + physcolorcolor + physpull)
+    
+    distcolspecs=[(0,4),(5,10),(11,16),(17,22),(23,29),(30,36),(37,48),(49,53),(54,59),(60,65),(66,70),(71,76),(77,82),(83,87),(88,92),(93,98)]
+    distnames=["ID","DIST","e_DIST","DIST_C","DIST_M","e_DIST_M","STAT_M","PFAR","DIST_R1","e_DIST_R1","PINT_R1","ARM_R1","DIST_R2","e_DIST_R2","PINT_R2","ARM_R2"]
+    distdata = pd.read_fwf("MRT-dist.txt",colspecs=distcolspecs,names=distnames, sep=r"\s+", skiprows = 29, usecols=["ID"] + ["DIST"])
+    #merge key values line up between hcsc and crossmatch tables
+    merged2 = pd.merge(data_hcsc, xmatdata, left_on="ID", right_on="YB", how="inner")
+    merged1 = pd.merge(distdata, merged2, left_on="ID", right_on="ID", how="inner")
+    
+    cordcolspecs=[(0,4),(5,14),(15,23),(24,31),(32,39),(40,47),(48,55),(56,60),(60,68),(69,77),(78,85),(86,94),(95,102),(103,110),(111,120),(121,130),(131,133),(134,136),(137,139),(140,141),(142,146),(147,148),(149,153),(154,158),(159,160)]
+    cordnames=["ID","GLON","GLAT","MWPR","e_GLON","e_GLAT","e_MWPR","HRATE","F8","e_F8","F12","e_F12","F24","e_F24","F70","e_F70","N8","N12","N24","N70","f_SAT","f_MULTI","f_NOSRC","f_PCONF","f_CEXT"]
+    corddata = pd.read_fwf("MRT-phot.txt",colspecs=cordcolspecs,names=cordnames, sep=r"\s+", skiprows = 39, usecols=["ID"] + ["GLON"] + ["GLAT"])
+    
+    merged = pd.merge(corddata, merged1, left_on="ID", right_on="ID", how="inner")
+    
+    # Remove Rows based on exclusion parameters
+    #flags rows for exclusion 
+    excludeidx = []
+    for i in range(len(merged)):
+        if tripx in physicalsep and tripy in physicalsep and tripz in physicalsep:
+            continue
+        for j in range(len(exclusionheaders)):
+            if int(merged[exclusionheaders[j]][i])== 1:
+                excludeidx += [i]
+        cutoff = exclusions[0]
+        FEvals = []
+        for k in tripx+tripy+tripz:
+            FEvals.append(float(merged['e_'+k][i]))
+        if cutoff<max(FEvals) or min(FEvals)<0:
+            excludeidx += [i]
+    excludeidx = list(set(excludeidx))
+    #restricts to sources within the chosen l/b/distance window
+    if answer == True:
+        criteria = ((merged["DIST"] < dismax) & 
+                    (merged["DIST"] > dismin) &
+                    (merged["GLAT"] < bmax) &
+                    (merged["GLAT"] > bmin) &
+                    (merged["GLON"] < lmax) &
+                    (merged["GLON"] > lmin))
+        merged = merged.loc[criteria].reset_index(drop=True)
+        print(len(merged))
+    #log-transforms the physical property used for point coloring 
+    if physcolorcolor[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
+        log_physcolorcolor = np.log10(merged[physcolorcolor])
+    else:
+        log_physcolorcolor = merged[physcolorcolor]     
+    # Sort into lists based on sorting categories
+    #puts x color, y color, their uncertainties, and the coloring property into each category
+    categorizedx = []
+    categorizedy = []
+    categorizedz =[]
+    uncategorizedx = []
+    uncategorizedy = []
+    uncategorizedz =[]
+    catergorizedphyscolor = []
+    for j in sort[1]:
+        catx = []
+        caty = []
+        catz =[]
+        uncatx = []
+        uncaty = []
+        uncatz =[]
+        catphyscolor = []
+        for i in range(len(merged)):
+            colornumx = float(merged[tripx[0]][i])
+            if len(tripx) == 2:
+                colornumsx = float(merged['u_' + tripx[0]][i])
+                colordenx = float(merged[tripx[1]][i])
+                colordensx = float(merged['u_' + tripx[1]][i])
+                entryx = np.log10(colornumx/colordenx)
+                unc2x = ((colornumsx**2)/(colornumx*np.log(10))**2)+((colordensx**2)/(colordenx*np.log(10))**2)
+                unentryx = np.sqrt(unc2x)
+            else: 
+                colornumsx = float(merged['e_' + tripx[0]][i])
+                if tripx[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
+                    entryx = np.log10(colornumx)
+                    unc2x = ((colornumsx**2)/(colornumx*np.log(10))**2)
+                    unentryx = np.sqrt(unc2x)
+                else:
+                    entryx = colornumx
+                    unc2x = ((colornumsx**2)/(colornumx)**2)
+                    unentryx = np.sqrt(unc2x)
+
+            colornumy = float(merged[tripy[0]][i])
+            if len(tripy) == 2:
+                colornumsy = float(merged['u_' + tripy[0]][i])
+                colordeny = float(merged[tripy[1]][i])
+                colordensy = float(merged['u_' + tripy[1]][i])
+                entryy = np.log10(colornumy/colordeny)
+                unc2y = ((colornumsy**2)/(colornumy*np.log(10))**2)+((colordensy**2)/(colordeny*np.log(10))**2)
+                unentryy = np.sqrt(unc2y)
+            else: 
+                colornumsy = float(merged['e_' + tripy[0]][i])
+                if tripy[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
+                    entryy = np.log10(colornumy)
+                    unc2y = ((colornumsy**2)/(colornumy*np.log(10))**2)
+                    unentryy = np.sqrt(unc2y)
+                else:
+                    entryy = colornumy
+                    unc2y = ((colornumsy**2)/(colornumy)**2)
+                    unentryy = np.sqrt(unc2y)
+            
+            colornumz = float(merged[tripz[0]][i])
+            
+            if len(tripz) == 2:
+                colornumsz = float(merged['u_' + tripz[0]][i])
+                colordenz = float(merged[tripz[1]][i])
+                colordensz = float(merged['u_' + tripz[1]][i])
+                entryz = np.log10(colornumz/colordenz)
+                unc2z = ((colornumsz**2)/(colornumz*np.log(10))**2)+((colordensz**2)/(colordenz*np.log(10))**2)
+                unentryz = np.sqrt(unc2z)
+            else: 
+                colornumsz = float(merged['e_' + tripz[0]][i])
+                if tripz[0] in ['LRAT', 'SIGMA', "MASS", "BLUM", "DIAM", "LMRAT"]:
+                    entryz = np.log10(colornumz)
+                    unc2z = ((colornumsz**2)/(colornumz*np.log(10))**2)
+                    unentryz = np.sqrt(unc2z)
+                else:
+                    entryz = colornumz
+                    unc2z = ((colornumsz**2)/(colornumz)**2)
+                    unentryz = np.sqrt(unc2z)
+
+            if i not in excludeidx and not np.isnan(entryx) and not np.isnan(entryy) and not np.isnan(unentryx) and not np.isnan(unentryy) and not np.isnan(entryz) and not np.isnan(unentryz):
+                if j =='All Sources':
+                    catx.append(entryx)
+                    caty.append(entryy)
+                    uncatx.append(unentryx)
+                    uncaty.append(unentryy)
+                    catz.append(entryz)
+                    uncatz.append(unentryz)
+                    catphyscolor.append(float(log_physcolorcolor.iloc[i]))
+                elif j=='Neither':
+                    if xmatdata['Multiple Sources'][i] == 0 and xmatdata['Very Circular'][i]==0:
+                        catx.append(entryx)
+                        caty.append(entryy)
+                        uncatx.append(unentryx)
+                        uncaty.append(unentryy)
+                        catz.append(entryz)
+                        uncatz.append(unentryz)
+                        catphyscolor.append(float(log_physcolorcolor.iloc[i]))
+                elif 'Not ' in j:
+                    if xmatdata[j.replace('Not ','')][i]==0:
+                        catx.append(entryx)
+                        caty.append(entryy)
+                        uncatx.append(unentryx)
+                        uncaty.append(unentryy)
+                        catz.append(entryz)
+                        uncatz.append(unentryz)
+                        catphyscolor.append(float(log_physcolorcolor.iloc[i]))
+                else:
+                    if xmatdata[j][i]==1:
+                        catx.append(entryx)
+                        caty.append(entryy)
+                        uncatx.append(unentryx)
+                        uncaty.append(unentryy)
+                        catz.append(entryz)
+                        uncatz.append(unentryz)
+                        catphyscolor.append(float(log_physcolorcolor.iloc[i]))
+        categorizedx.append(catx)
+        categorizedy.append(caty)
+        categorizedz.append(catz)
+        uncategorizedx.append(uncatx)
+        uncategorizedy.append(uncaty)
+        uncategorizedz.append(uncatz)
+        catergorizedphyscolor.append(catphyscolor)
+    dim = get_dimensions(len(categorizedx))
+    #flattens the per-category lists back into a single dataframe
+    catlabel = []
+    colordatx = []
+    colordaty = []
+    colordatz = []
+
+    for i in range(len(categorizedx)):
+        for j in range(len(categorizedx[i])):
+            catlabel.append(datatitles[i])
+        colordatx = colordatx + categorizedx[i]
+        colordaty = colordaty + categorizedy[i]
+        colordatz = colordatz + categorizedz[i]
+    dataframe = {'xcoor': colordatx, 'ycoor':colordaty, 'zcoor': colordatz, 'Type': catlabel}
+    df = pd.DataFrame(dataframe)
+    print('This is where we make a color-color plot :3')
+    fig= plt.figure(figsize=(8*dim[0],8*dim[1]))
+    fig.canvas.header_visible= False
+    if cutoff < 1000:
+        cut = f"Cutoff {str(cutoff)}"
+    else:
+        cut = "No Cutoff"
+    
+    if len(tripy)==2:
+        ytitle = r'$log_{10}$'+f'({tripy[0]}/{tripy[1]})'
+        yaxtitle = r'$log_{10}$'+f'({tripy[0]}/{tripy[1]})'
+    elif len(tripy) == 1:
+        ytitle = f'{tripy[0]}'
+        yaxtitle = triptitle[1]
+    if len(tripx)==2:
+        xtitle = r'$log_{10}$'+f'({tripx[0]}/{tripx[1]})'
+        xaxtitle = r'$log_{10}$'+f'({tripx[0]}/{tripx[1]})'
+    elif len(tripx) == 1:
+        xtitle = f'{tripx[0]}'
+        xaxtitle = triptitle[0]
+    if len(tripz)==2:
+        ztitle = r'$log_{10}$'+f'({tripz[0]}/{tripz[1]})'
+        zaxtitle = r'$log_{10}$'+f'({tripz[0]}/{tripz[1]})'
+    elif len(tripz) == 1:
+        ztitle = f'{tripz[0]}'
+        zaxtitle = triptitle[2]
+    fig.suptitle(ytitle+'v'+xtitle+'v'+ztitle+"\n"+cut, fontsize=20, y=.98)
+    plt.axis('off')
+    fig.subplots_adjust(left=.2, right=.95, top=.85, bottom=.1)
+    plt.text(.5, 1.075,'Cutoff: '+cut, fontsize = 20, ha='center', transform=fig.transFigure)
+    rangex = get_rangecc(categorizedx)
+    rangey = get_rangecc(categorizedy)
+    rangez = get_rangecc(categorizedz)
+    #plots one color-color scatter plot per category colored by the chosen physical property
+    for i in range(len(sort[1])):
+        title = datatitles[i]
+        data = [categorizedx[i],categorizedy[i], categorizedz[i]]
+        physicalcolor = catergorizedphyscolor[i]
+        n = len(data[0])
+        avecolor= (float(round(statistics.mean(data[0]),2)),float(round(statistics.mean(data[1]),2)),float(round(statistics.mean(data[2]),2)))
+        stdevcolor = (float((round(np.std(data[0]),3))),float(round(np.std(data[1]),3)),float(round(np.std(data[2]),3)))
+        undatax = uncategorizedx[i]
+        uncertaintyx = np.mean(undatax)
+        undatay = uncategorizedy[i]
+        uncertaintyy = np.mean(undatay)
+        undataz = uncategorizedz[i]
+        uncertaintyz = np.mean(undataz)
+        minifig = fig.add_subplot(dim[1],dim[0],i + 1, projection='3d')
+        minifig.set_xlabel(xaxtitle, fontsize = 15, labelpad = 5)
+        minifig.set_ylabel(yaxtitle, fontsize = 15, labelpad = 5)
+        minifig.set_zlabel(zaxtitle, fontsize = 15, labelpad = 5)
+        plt.title(title, fontsize=28)
+        minifig.set_xlim(rangex[0],rangex[1])
+        minifig.set_ylim(rangey[0],rangey[1])
+        minifig.set_zlim(rangez[0],rangez[1])
+        sc = minifig.scatter(data[0], data[1], data[2], c=physicalcolor, cmap="rainbow", s = 10)
+        minifig.tick_params(labelsize=20)
+        #Ave HII box and cutoffs will only show for F70/F24 vs. F24/F8 plots 
+        '''
+        if tripx == ['F70','F24'] and tripy == ['F24','F8']:
+            plt.axhline(y=1.0,color='k', linestyle='dashed', label='')
+            plt.axvline(x=0.8, color='k', linestyle='dashed', label='')
+            #Average HII box
+            plt.vlines(1.05, 0.26, 0.84, colors='k', linestyles='solid', label='')
+            plt.vlines(1.47, 0.26, 0.84, colors='k', linestyles='solid', label='')
+            plt.hlines(0.26, 1.05,1.47, colors='k', linestyles='solid', label='')
+            plt.hlines(0.84, 1.05, 1.47, colors='k', linestyles='solid', label='')
+        '''
+        #Show Statistics on Plot
+        minifig.text2D(0.05,.96,'N=' + str(n), fontsize=20, transform=minifig.transAxes)
+        minifig.text2D(0.05,.91, r'$\bar{x} =$' + str(avecolor), fontsize=20, transform=minifig.transAxes)
+        minifig.text2D(0.05,.86, r'$s =$' + str(stdevcolor), fontsize=20, transform=minifig.transAxes)
+        # x-direction line (like hlines): fixed y, z — sweep x
+        '''
+        minifig.plot([(rangex[1] - rangex[2]) - uncertaintyx, (rangex[1] - rangex[2]) + uncertaintyx],
+                [rangey[0] + rangey[2], rangey[0] + rangey[2]],
+                [rangez[0] + rangez[2], rangez[0] + rangez[2]],
+                color='k', linestyle='dotted')
+
+        # y-direction line (like vlines): fixed x, z — sweep y
+        minifig.plot([rangex[1] - rangex[2], rangex[1] - rangex[2]],
+                [(rangey[0] + rangey[2]) - uncertaintyy, (rangey[0] + rangey[2]) + uncertaintyy],
+                [rangez[0] + rangez[2], rangez[0] + rangez[2]],
+                color='k', linestyle='dotted')
+
+        # z-direction line (the new one): fixed x, y — sweep z
+        minifig.plot([rangex[1] - rangex[2], rangex[1] - rangex[2]],
+                [rangey[0] + rangey[2], rangey[0] + rangey[2]],
+                [(rangez[0] + rangez[2]) - uncertaintyz, (rangez[0] + rangez[2]) + uncertaintyz],
+                color='k', linestyle='dotted')
+       # GWC removed 70/24 and 24/8 from the print statements on 11may26.
+       '''
+        print('Uncertaintyx ' + title + ': '+ str(uncertaintyx))
+        print('Uncertaintyy ' + title + ': '+ str(uncertaintyy))
+        print('Uncertaintyz ' + title + ': '+ str(uncertaintyz))
+    cbar = fig.colorbar(sc, ax=fig.axes, label=physlabel)
+    cbar.set_label(physlabel, fontsize=20)
+    fig.savefig(fname= save_name, transparent=True)
+    plt.ioff()
+    plt.show()
